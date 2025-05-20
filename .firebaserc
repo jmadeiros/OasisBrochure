@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "oasisvillagestmartins"
+  },
+  "targets": {
+    "oasisvillagestmartins": {
+      "hosting": {
+        "oasisvillage": [
+          "oasisvillagestmartins"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
