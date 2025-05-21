@@ -46,6 +46,16 @@ import { useState, useEffect, FormEvent, ChangeEvent } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { toast } from "sonner"
+import { format, isValid as isValidDate } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react" 
+import { Calendar as DatePicker } from "@/components/ui/calendar" // This is the Shadcn Calendar component
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 // Add this after the imports
 const scrollbarHideStyles = `
@@ -55,6 +65,51 @@ const scrollbarHideStyles = `
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+`
+
+// Add this after the scrollbarHideStyles
+const calendarStyles = `
+  /* DEBUG STYLES */
+  /* Target popper wrapper to identify it */
+  [data-radix-popper-content-wrapper] {
+    border: 2px solid red !important;
+  }
+  
+  /* Highlight all buttons inside calendar */
+  [data-radix-popper-content-wrapper] button {
+    cursor: pointer !important;
+    outline: 1px solid blue !important;
+  }
+  
+  /* Highlight and add cursor to cells */
+  [data-radix-popper-content-wrapper] td,
+  [data-radix-popper-content-wrapper] th {
+    cursor: pointer !important;
+    outline: 1px dashed green !important;
+  }
+  
+  /* Add hover effect to verify mouse interaction */
+  [data-radix-popper-content-wrapper] button:hover,
+  [data-radix-popper-content-wrapper] td:hover {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+  }
+  
+  /* Target the entire dialog to ensure we're getting all elements */
+  [data-radix-popper-content-wrapper] [role="dialog"] {
+    background-color: rgba(200, 200, 255, 0.1) !important;
+  }
+  
+  /* Ensure all elements have pointer events */
+  [data-radix-popper-content-wrapper] * {
+    pointer-events: auto !important;
+  }
+  
+  /* Override any cursor:default or cursor:text styles */
+  [role="dialog"] *,
+  .rdp *,
+  .calendar * {
+    cursor: pointer !important;
   }
 `
 
@@ -758,9 +813,9 @@ export default function WorkspaceBrochure() {
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState<number>(0)
   // Add this state for the email collection dialog
-  const [bookingDialogOpen, setBookingDialogOpen] = useState<boolean>(false)
-  const [visitorEmail, setVisitorEmail] = useState<string>('')
-  const [emailError, setEmailError] = useState<string>('')
+  // const [bookingDialogOpen, setBookingDialogOpen] = useState<boolean>(false) // Old - Will be removed
+  // const [visitorEmail, setVisitorEmail] = useState<string>('') // Old - Will be removed
+  // const [emailError, setEmailError] = useState<string>('') // Old - Will be removed
 
   // State for Inquiry Dialog
   const [inquiryDialogOpen, setInquiryDialogOpen] = useState<boolean>(false);
@@ -770,6 +825,48 @@ export default function WorkspaceBrochure() {
   const [inquiryNameError, setInquiryNameError] = useState<string>('');
   const [inquiryEmailError, setInquiryEmailError] = useState<string>('');
   const [inquiryPhoneNumberError, setInquiryPhoneNumberError] = useState<string>('');
+  const [inquiryMessage, setInquiryMessage] = useState<string>(''); // New state for inquiry message
+  const [inquirySubmitting, setInquirySubmitting] = useState<boolean>(false);
+  const [inquirySubmitSuccess, setInquirySubmitSuccess] = useState<boolean>(false);
+  const [inquirySubmitError, setInquirySubmitError] = useState<string>('');
+
+  // State for Book a Tour Dialog (New)
+  const [tourDialogOpen, setTourDialogOpen] = useState<boolean>(false);
+  const [tourName, setTourName] = useState<string>('');
+  const [tourEmail, setTourEmail] = useState<string>('');
+  const [tourPhoneNumber, setTourPhoneNumber] = useState<string>('');
+  const [tourDate, setTourDate] = useState<Date | undefined>(undefined); // Changed to Date object
+  const [tourTime, setTourTime] = useState<string>(''); // Keep as string for now, can be improved later
+  const [tourMessage, setTourMessage] = useState<string>('');
+  const [tourNameError, setTourNameError] = useState<string>('');
+  const [tourEmailError, setTourEmailError] = useState<string>('');
+  const [tourPhoneNumberError, setTourPhoneNumberError] = useState<string>('');
+  const [tourDateError, setTourDateError] = useState<string>('');
+  const [tourTimeError, setTourTimeError] = useState<string>('');
+  const [tourSubmitting, setTourSubmitting] = useState<boolean>(false);
+  const [tourSubmitSuccess, setTourSubmitSuccess] = useState<boolean>(false);
+  const [tourSubmitError, setTourSubmitError] = useState<string>(''); // New state for submission error
+
+  // Define time slots for the tour booking
+  const generateTimeSlots = (startHour: number, endHour: number, intervalMinutes: number): string[] => {
+    const slots: string[] = [];
+    const today = new Date(); // Use a fixed date for time generation, only time matters
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minutes = 0; minutes < 60; minutes += intervalMinutes) {
+        // Ensure we don't create slots like 16:60 if interval is 30 and endHour is 17
+        if (hour === endHour -1 && minutes >= (60 - intervalMinutes +1) && intervalMinutes !== 60) continue; 
+        const time = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour, minutes);
+        slots.push(format(time, "HH:mm")); // e.g., "09:00", "14:30"
+      }
+    }
+    // Add the endHour sharp if interval allows (e.g., for 9 to 17, include 17:00)
+    if (endHour <= 23 && (60 % intervalMinutes === 0 || intervalMinutes === 60)) { // Ensure endHour is valid
+       const endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, 0);
+       slots.push(format(endTime, "HH:mm"));
+    }
+    return slots;
+  };
+  const timeSlots = generateTimeSlots(8, 19, 60); // 8:00 AM to 7:00 PM, every 60 mins
 
   const [indicatorStyle, setIndicatorStyle] = useState({ left: '0px', width: '0px' })
   // Add state for current space images in the gallery
@@ -1042,33 +1139,43 @@ export default function WorkspaceBrochure() {
 
   // Add this function to handle the booking process
   const handleBookTour = () => {
-    setBookingDialogOpen(true)
+    setTourDialogOpen(true); 
+    setTourSubmitSuccess(false); // Reset success state
+    setTourSubmitError(''); // Clear previous errors
   }
 
   // Add this function to handle form submission
-  const handleBookingSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!visitorEmail) {
-      setEmailError('Please enter your email')
-      return
-    }
-    if (!/^\\S+@\\S+\\.\\S+$/.test(visitorEmail)) {
-      setEmailError('Please enter a valid email address')
-      return
-    }
-    setEmailError('')
-    setBookingDialogOpen(false)
-    window.open(`https://calendar.google.com/calendar/u/3/r/eventedit?text=Tour+of+The+Village+Workspace&add=george@scailer.io,josh@scailer.io,${encodeURIComponent(visitorEmail)}&state=%5Bnull%2Cnull%2Cnull%2Cnull%2C%5B13%5D%5D`, "_blank")
-    setVisitorEmail('')
-  }
+  // const handleBookingSubmit = (e: FormEvent<HTMLFormElement>) => { // Old - Will be removed
+  //   e.preventDefault()
+  //   if (!visitorEmail) {
+  //     setEmailError('Please enter your email')
+  //     return
+  //   }
+  //   if (!/^\S+@\S+\.\S+$/.test(visitorEmail)) {
+  //     setEmailError('Please enter a valid email address')
+  //     return
+  //   }
+  //   setEmailError('')
+  //   setBookingDialogOpen(false)
+  //   window.open(`https://calendar.google.com/calendar/u/3/r/eventedit?text=Tour+of+The+Village+Workspace&add=george@scailer.io,josh@scailer.io,${encodeURIComponent(visitorEmail)}&state=%5Bnull%2Cnull%2Cnull%2Cnull%2C%5B13%5D%5D`, "_blank")
+  //   setVisitorEmail('')
+  // }
 
   const handleOpenInquiryDialog = () => {
     setInquiryDialogOpen(true);
+    setInquirySubmitSuccess(false);
+    setInquirySubmitError('');
+    // Clear form fields if you want them reset each time the dialog opens
+    // setInquiryName('');
+    // setInquiryEmail('');
+    // setInquiryPhoneNumber('');
+    setInquiryMessage(''); // Assuming you add a state for inquiryMessage
   };
 
-  const handleInquirySubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleInquirySubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let isValid = true;
+    setInquirySubmitError('');
 
     if (!inquiryName) {
       setInquiryNameError('Please enter your name');
@@ -1095,15 +1202,176 @@ export default function WorkspaceBrochure() {
     }
 
     if (isValid) {
-      // Handle successful submission, e.g., send data to backend or mailto link
-      console.log("Inquiry submitted:", { name: inquiryName, email: inquiryEmail, phone: inquiryPhoneNumber });
-      const subject = `Inquiry about ${getCurrentContent()?.title || 'a space'}`;
-      const body = `Name: ${inquiryName}%0D%0AEmail: ${inquiryEmail}%0D%0APhone: ${inquiryPhoneNumber}%0D%0A%0D%0AI'm interested in ${getCurrentContent()?.title || 'a space'}.`;
-      window.open(`mailto:all@scailer.io?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
-      setInquiryDialogOpen(false);
-      setInquiryName('');
-      setInquiryEmail('');
-      setInquiryPhoneNumber('');
+      setInquirySubmitting(true);
+      setInquirySubmitSuccess(false);
+      try {
+        const currentSpace = getCurrentContent();
+        const spaceTitle = currentSpace?.title || 'General Inquiry';
+        // Add a state for inquiryMessage if you want to include it
+        // const inquiryMessage = "User typed message here"; 
+
+        const response = await fetch('/api/inquiry', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inquiryName,
+            inquiryEmail,
+            inquiryPhoneNumber,
+            inquiryMessage: "User wants to inquire about this space.", // Placeholder, add state if needed
+            spaceTitle,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.details || `Server responded with ${response.status}`);
+        }
+
+        setInquirySubmitSuccess(true);
+        console.log("Inquiry submitted successfully:", data);
+        // Close dialog first, then show toast
+        setInquiryDialogOpen(false); 
+        toast.success("Inquiry Sent!", {
+          description: "Thank you for your inquiry! We will get back to you shortly.",
+          duration: 5000,
+        });
+
+        // Optionally close dialog and reset form after a delay
+        // setTimeout(() => {
+        //   setInquiryDialogOpen(false);
+        //   setInquiryName('');
+        //   setInquiryEmail('');
+        //   setInquiryPhoneNumber('');
+        //   setInquiryMessage('');
+        // }, 2000); // Delay removed as toast provides feedback and dialog closes
+
+      } catch (error) {
+        console.error("Error submitting inquiry:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const userFriendlyError = "Sorry, there was an issue submitting your inquiry. Please try again later.";
+        setInquirySubmitError(userFriendlyError);
+        toast.error("Inquiry Failed", { description: userFriendlyError, duration: 5000 });
+      } finally {
+        setInquirySubmitting(false);
+      }
+    }
+  };
+
+  const handleTourSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let tourIsValid = true;
+    setTourSubmitError(''); // Clear previous errors on new submission attempt
+
+    if (!tourName) {
+      setTourNameError('Please enter your name');
+      tourIsValid = false;
+    } else {
+      setTourNameError('');
+    }
+
+    if (!tourEmail) {
+      setTourEmailError('Please enter your email');
+      tourIsValid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(tourEmail)) {
+      setTourEmailError('Please enter a valid email address');
+      tourIsValid = false;
+    } else {
+      setTourEmailError('');
+    }
+
+    if (!tourPhoneNumber) {
+      setTourPhoneNumberError('Please enter your phone number');
+      tourIsValid = false;
+    } else {
+      setTourPhoneNumberError('');
+    }
+
+    if (!tourDate || !isValidDate(tourDate)) { // Updated validation for Date object
+      setTourDateError('Please select a valid date');
+      tourIsValid = false;
+    } else {
+      setTourDateError('');
+    }
+
+    if (!tourTime) {
+      setTourTimeError('Please select a time');
+      tourIsValid = false;
+    } else {
+      setTourTimeError('');
+    }
+
+    if (tourIsValid && tourDate) { // Ensure tourDate is defined before formatting
+      try {
+        setTourSubmitting(true);
+        setTourSubmitSuccess(false); // Reset success state before new attempt
+        
+        // Get the base URL - use window.location.origin for the current domain
+        const baseUrl = window.location.origin;
+        console.log("Making API request to:", `${baseUrl}/api/tour-booking`);
+        
+        // Send data to our API endpoint
+        const res = await fetch(`${baseUrl}/api/tour-booking`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            tourName,
+            tourEmail,
+            tourPhoneNumber,
+            tourDate: format(tourDate, "yyyy-MM-dd"), // Format Date to string for API
+            tourTime,
+            tourMessage
+          }),
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+          console.error("API response error:", data);
+          // Use data.error or data.details from the response if available
+          throw new Error(data.error || data.details || `Server responded with ${res.status}`);
+        }
+        
+        console.log("Tour request submitted successfully:", data);
+        setTourSubmitSuccess(true);
+        // Close dialog first, then show toast for better UX
+        setTourDialogOpen(false);
+        toast.success("Tour Request Submitted!", {
+          description: "You'll receive a confirmation email with a calendar invite shortly.",
+          duration: 5000,
+        });
+        
+        // Reset form fields
+        setTourName('');
+        setTourEmail('');
+        setTourPhoneNumber('');
+        setTourDate(undefined); // Reset date
+        setTourTime('');
+        setTourMessage('');
+        
+        // Show success alert or toast notification
+        // alert("Your tour has been booked successfully! You will receive a confirmation email with calendar invite shortly.");
+      } catch (error) {
+        console.error("Error booking tour:", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const userFriendlyError = "Sorry, there was an issue booking your tour. Please check your details or try again later.";
+        
+        if (errorMessage.includes('Missing required fields')) {
+          setTourSubmitError("Please ensure all required fields are correctly filled and try again.");
+        } else if (errorMessage.includes('Server responded with 500') || errorMessage.toLowerCase().includes('failed to process booking')) {
+          setTourSubmitError("We couldn't book your tour due to a server issue. Please try again later or contact us.");
+        } else {
+          setTourSubmitError(userFriendlyError);
+        }
+        toast.error("Booking Failed", { description: tourSubmitError || userFriendlyError, duration: 5000 });
+        setTourSubmitSuccess(false);
+      } finally {
+        setTourSubmitting(false);
+      }
     }
   };
 
@@ -1137,9 +1405,120 @@ export default function WorkspaceBrochure() {
 
   // REMOVE the previous empty useEffect for gallery images that was here
 
+  // Add this after all the state declarations
+  // Debug effect to inspect calendar structure when dialog opens
+  useEffect(() => {
+    if (tourDialogOpen) {
+      console.log('Tour dialog opened - inspecting calendar DOM');
+      // Set a timeout to allow the dialog to fully render
+      const timeout = setTimeout(() => {
+        const popperContent = document.querySelector('[data-radix-popper-content-wrapper]');
+        if (popperContent) {
+          console.log('Found popper content:', popperContent);
+          // Log all buttons inside the calendar
+          const buttons = popperContent.querySelectorAll('button');
+          console.log(`Found ${buttons.length} buttons inside calendar:`, buttons);
+          // Log all table cells
+          const cells = popperContent.querySelectorAll('td');
+          console.log(`Found ${cells.length} cells inside calendar:`, cells);
+          // Check computed styles on a button to see what's overriding our cursor
+          if (buttons.length > 0) {
+            const firstButton = buttons[0];
+            const computedStyle = window.getComputedStyle(firstButton);
+            console.log('Computed cursor style on first button:', computedStyle.cursor);
+            console.log('Button element:', firstButton);
+          }
+        } else {
+          console.log('No popper content found - calendar may not be rendered yet');
+        }
+      }, 1000); // Wait 1 second for DOM to be fully rendered
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [tourDialogOpen]);
+
+  // Add a useEffect to set up a mutation observer for the calendar elements
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    console.log('Setting up mutation observer for calendar elements');
+    
+    // Create a MutationObserver to watch for changes to the DOM
+    const observer = new MutationObserver((mutations) => {
+      // Look for the popper element on each mutation
+      const popperElement = document.querySelector('[data-radix-popper-content-wrapper]');
+      if (popperElement) {
+        console.log('Calendar popper found by mutation observer');
+        
+        // Apply cursor styles directly to all interactive elements
+        const allButtons = popperElement.querySelectorAll('button');
+        const allCells = popperElement.querySelectorAll('td');
+        const allElements = popperElement.querySelectorAll('*');
+        
+        console.log(`Applying direct styles to ${allButtons.length} buttons and ${allCells.length} cells`);
+        
+        // Apply styles to buttons
+        allButtons.forEach(button => {
+          (button as HTMLElement).style.cursor = 'pointer';
+          (button as HTMLElement).style.pointerEvents = 'auto';
+          // Add a data attribute for debugging
+          button.setAttribute('data-cursor-fixed', 'true');
+        });
+        
+        // Apply styles to cells
+        allCells.forEach(cell => {
+          (cell as HTMLElement).style.cursor = 'pointer';
+          (cell as HTMLElement).style.pointerEvents = 'auto';
+          cell.setAttribute('data-cursor-fixed', 'true');
+        });
+        
+        // Apply pointer-events to all elements to ensure hover works
+        allElements.forEach(el => {
+          if (el instanceof HTMLElement) {
+            el.style.pointerEvents = 'auto';
+          }
+        });
+      }
+    });
+    
+    // Start observing the document body for any changes
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
+    
+    // Clean up the observer when component unmounts
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <style jsx global>{scrollbarHideStyles}</style>
+      <style jsx global>{calendarStyles}</style>
+      
+      {/* Additional global styles for calendar specific issues */}
+      <style jsx global>{`
+        /* Fix calendar component cursor issues */
+        .rdp button, 
+        .rdp td, 
+        .rdp th, 
+        .rdp-day, 
+        .rdp-day_selected, 
+        .rdp-day_today,
+        .rdp-nav button,
+        [data-radix-popper-content-wrapper] [role="dialog"] button,
+        [data-radix-popper-content-wrapper] [role="dialog"] td {
+          cursor: pointer !important;
+        }
+        
+        /* Force all calendar cells to be clickable */
+        .rdp-cell:not(.rdp-day_outside):not(.rdp-day_disabled) {
+          cursor: pointer !important;
+        }
+      `}</style>
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b py-4">
         <div className="container mx-auto px-4 flex items-center justify-between">
@@ -1290,11 +1669,11 @@ export default function WorkspaceBrochure() {
                   className={`absolute inset-0 transition-opacity duration-1000 ${index === currentHeroIndex ? "opacity-100" : "opacity-0"}`}
               >
                 <Image
-                  src={image.src || "/placeholder.svg"}
+                  src={image.src}
                   alt={image.alt}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
+                  layout="fill"
+                  objectFit="cover"
+                  priority={true} // Add priority to all hero images
                 />
               </div>
             ))}
@@ -2122,6 +2501,7 @@ export default function WorkspaceBrochure() {
                 alt="The Village Workspace"
                 fill
                 className="object-cover"
+                priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute bottom-4 left-4 text-white">
@@ -2376,68 +2756,34 @@ export default function WorkspaceBrochure() {
       </div>
     </footer>
 
-    {/* Booking Dialog */}
-      <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-      <DialogContent className="sm:max-w-md">
-        <div className="p-4">
-          <DialogPrimitive.Title className="sr-only"> {/* Visually hidden title */}
-            Book a Tour
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="sr-only">
-            Dialog to collect email for scheduling a tour of our facilities.
-          </DialogPrimitive.Description>
-          <h2 className="text-xl font-bold mb-4 text-center">Book a Tour</h2>
-          <p className="text-gray-700 mb-6 text-center">
-            Enter your email to schedule a tour of our facilities
-          </p>
-          <form onSubmit={handleBookingSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={visitorEmail}
-                onChange={(e) => setVisitorEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="your@email.com"
-              />
-              {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
-            </div>
-            <div className="flex justify-end gap-4 mt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setBookingDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/90 text-white">
-                Book Tour
-              </Button>
-            </div>
-          </form>
-        </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Inquiry Dialog */}
-      <Dialog open={inquiryDialogOpen} onOpenChange={setInquiryDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <div className="p-4">
-            <DialogPrimitive.Title className="sr-only"> {/* Visually hidden title */}
-              Inquire About This Space
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Description className="sr-only">
-              Dialog to collect your details for an inquiry about {getCurrentContent()?.title || 'a space'}.
-            </DialogPrimitive.Description>
-            <h2 className="text-xl font-bold mb-4 text-center">Inquire About {getCurrentContent()?.title || 'This Space'}</h2>
-            <p className="text-gray-700 mb-6 text-center">
-              Please fill in your details below, and we'll get back to you shortly.
-            </p>
+      <Dialog open={inquiryDialogOpen} onOpenChange={(open) => {
+        setInquiryDialogOpen(open);
+        if (!open) {
+          setInquirySubmitError(''); // Clear error when dialog is closed
+          setInquirySubmitSuccess(false); // Reset success state
+        }
+      }}>
+        <DialogContent className="sm:max-w-lg p-0">
+          <div className="p-6 space-y-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
+                Inquire About {getCurrentContent()?.title || 'This Space'}
+          </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
+                Fill in your details below, and we'll get back to you.
+          </DialogPrimitive.Description>
+            </div>
+            {inquirySubmitError && (
+              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                <p>{inquirySubmitError}</p>
+              </div>
+            )}
             <form onSubmit={handleInquirySubmit}>
-              <div className="mb-4">
+            <div className="mb-4">
                 <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
                 </label>
@@ -2448,21 +2794,23 @@ export default function WorkspaceBrochure() {
                   onChange={(e) => setInquiryName(e.target.value)}
                   className={`w-full px-3 py-2 border ${inquiryNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
                   placeholder="Your Full Name"
+                  disabled={inquirySubmitting}
                 />
                 {inquiryNameError && <p className="mt-1 text-sm text-red-600">{inquiryNameError}</p>}
               </div>
               <div className="mb-4">
                 <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
+                Email Address
+              </label>
+              <input
+                type="email"
                   id="inquiry-email"
                   value={inquiryEmail}
                   onChange={(e) => setInquiryEmail(e.target.value)}
                   className={`w-full px-3 py-2 border ${inquiryEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="your@email.com"
-                />
+                placeholder="your@email.com"
+                disabled={inquirySubmitting}
+              />
                 {inquiryEmailError && <p className="mt-1 text-sm text-red-600">{inquiryEmailError}</p>}
               </div>
               <div className="mb-4">
@@ -2476,23 +2824,243 @@ export default function WorkspaceBrochure() {
                   onChange={(e) => setInquiryPhoneNumber(e.target.value)}
                   className={`w-full px-3 py-2 border ${inquiryPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
                   placeholder="+44 123 456 7890"
+                  disabled={inquirySubmitting}
                 />
                 {inquiryPhoneNumberError && <p className="mt-1 text-sm text-red-600">{inquiryPhoneNumberError}</p>}
-              </div>
-              <div className="flex justify-end gap-4 mt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setInquiryDialogOpen(false)}
+            </div>
+            <div className="mb-4">
+                <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="inquiry-message"
+                  value={inquiryMessage}
+                  onChange={(e) => setInquiryMessage(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Any additional details or specific interests?"
+                  rows={3}
+                  disabled={inquirySubmitting}
+                ></textarea>
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                  onClick={() => {
+                    setInquiryDialogOpen(false);
+                    setInquirySubmitError(''); // Also clear error on explicit cancel
+                  }}
+                  disabled={inquirySubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                  type="submit" 
+                  className="bg-primary hover:bg-primary/90 text-white"
+                  disabled={inquirySubmitting}
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white">
-                  Submit Inquiry
+                  {inquirySubmitting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </div>
+                  ) : (
+                    'Submit Inquiry'
+                  )}
                 </Button>
               </div>
             </form>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tour Booking Dialog (New) */}
+      <Dialog open={tourDialogOpen} onOpenChange={(open) => {
+        setTourDialogOpen(open);
+        if (!open) {
+          setTourSubmitError(''); // Clear error when dialog is closed
+          setTourSubmitSuccess(false); // Reset success state
+        }
+      }}>
+        <DialogContent className="sm:max-w-lg p-0">
+          <div className="p-6 space-y-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Calendar className="h-8 w-8 text-primary" />
+              </div>
+              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
+                Book a Tour
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
+                Enter your details below to schedule a tour.
+              </DialogPrimitive.Description>
+            </div>
+            {tourSubmitError && (
+              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                <p>{tourSubmitError}</p>
+              </div>
+            )}
+            <form onSubmit={handleTourSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="tour-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="tour-name"
+                  value={tourName}
+                  onChange={(e) => setTourName(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="Your Full Name"
+                  disabled={tourSubmitting}
+                />
+                {tourNameError && <p className="mt-1 text-sm text-red-600">{tourNameError}</p>}
+              </div>
+              <div>
+                <label htmlFor="tour-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="tour-email"
+                  value={tourEmail}
+                  onChange={(e) => setTourEmail(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="your@email.com"
+                  disabled={tourSubmitting}
+                />
+                {tourEmailError && <p className="mt-1 text-sm text-red-600">{tourEmailError}</p>}
+              </div>
+              <div>
+                <label htmlFor="tour-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="tour-phone"
+                  value={tourPhoneNumber}
+                  onChange={(e) => setTourPhoneNumber(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="+44 123 456 7890"
+                  disabled={tourSubmitting}
+                />
+                {tourPhoneNumberError && <p className="mt-1 text-sm text-red-600">{tourPhoneNumberError}</p>}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Date
+                  </label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !tourDate && "text-muted-foreground",
+                          tourDateError && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                        disabled={tourSubmitting}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 cursor-default">
+                      <DatePicker
+                        mode="single"
+                        selected={tourDate}
+                        onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
+                          setTourDate(selectedDate);
+                          if (selectedDate) setTourDateError('');
+                        }}
+                        disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                        initialFocus
+                        className="cursor-pointer rdp-root"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {tourDateError && <p className="mt-1 text-sm text-red-600">{tourDateError}</p>}
+                </div>
+                <div>
+                  <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Time
+                  </label>
+                  {tourTimeError && <p className="mt-1 text-sm text-red-600">{tourTimeError}</p>}
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    {timeSlots.map((slot) => (
+                      <Button
+                        key={slot}
+                        type="button"
+                        variant={tourTime === slot ? "default" : "outline"}
+                        onClick={() => {
+                          setTourTime(slot);
+                          if (slot) setTourTimeError('');
+                        }}
+                        className={cn(
+                          "w-full text-xs sm:text-sm h-10", // Adjusted height and text size
+                          tourTime === slot ? "bg-primary text-white hover:bg-primary/90" : "text-gray-700 hover:bg-gray-50",
+                          tourSubmitting && "opacity-50 cursor-not-allowed"
+                        )}
+                        disabled={tourSubmitting}
+                      >
+                        {format(new Date(`1970-01-01T${slot}:00`), slot.endsWith(":00") ? "h aa" : "h:mm aa")}
+                      </Button>
+                    ))}
+                  </div>
+                  {!tourTime && !tourTimeError && <p className="mt-1 text-xs text-muted-foreground">Please select a time.</p>}
+                </div>
+              </div>
+              <div>
+                <label htmlFor="tour-message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="tour-message"
+                  value={tourMessage}
+                  onChange={(e) => setTourMessage(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Any additional details or specific interests?"
+                  rows={3}
+                  disabled={tourSubmitting}
+                ></textarea>
+              </div>
+              <div className="flex justify-end gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setTourDialogOpen(false);
+                    setTourSubmitError(''); // Also clear error on explicit cancel
+                  }}
+                  className="px-6 py-2"
+                  disabled={tourSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-primary hover:bg-primary/90 text-white px-6 py-2"
+                  disabled={tourSubmitting}
+                >
+                  {tourSubmitting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </div>
+                  ) : (
+                    'Submit Request'
+                  )}
+              </Button>
+            </div>
+          </form>
+        </div>
         </DialogContent>
       </Dialog>
     </div>
