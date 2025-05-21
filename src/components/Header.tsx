@@ -59,7 +59,7 @@ export function Header({ scrollToContact, handleBookTour }: HeaderProps) {
             <span className="font-medium">Tulse Hill, London SW2 3UP</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               className="rounded-md flex items-center gap-1 sm:gap-2 text-secondary hover:text-primary hover:bg-accent p-1 sm:p-2 h-auto"
@@ -74,7 +74,7 @@ export function Header({ scrollToContact, handleBookTour }: HeaderProps) {
             >
               <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="font-medium text-xs sm:text-sm">Email</span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </section>

@@ -158,11 +158,11 @@ export function SpaceContent({
                   <Award className="h-4 w-4 mr-2 text-primary" />
                   Features
                 </h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-gray-700">
-                  {content.features.map((feature: string, index: number) => ( // feature as string, index as number
+                <ul className="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-gray-700 text-xs sm:text-sm">
+                  {content.features.map((feature: string, index: number) => (
                     <li key={index} className="flex items-start">
-                      <span className="text-primary mr-2">•</span>
-                      <span>{feature}</span>
+                      <span className="text-primary mr-1">•</span>
+                      <span className="truncate overflow-hidden sm:overflow-visible">{feature}</span>
                     </li>
                   ))}
                 </ul>

@@ -113,85 +113,6 @@ const calendarStyles = `
   }
 `
 
-// Add this after the scrollbarHideStyles and calendarStyles constants
-const cta_buttonStyles = `
-  .cta-button {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s ease;
-    transform: translateY(0);
-  }
-  
-  .cta-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.4);
-  }
-  
-  .cta-button::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s ease, height 0.6s ease;
-  }
-  
-  .cta-button:hover::after {
-    width: 300%;
-    height: 300%;
-  }
-  
-  .cta-pulse {
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(15, 118, 110, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
-    }
-  }
-
-  .floating-cta {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 100;
-    animation: bounce 2s infinite alternate;
-  }
-
-  @keyframes bounce {
-    0% {
-      transform: translateY(0);
-    }
-    100% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .cta-ribbon {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.25rem 1rem;
-    background-color: #ffd700;
-    color: #0f766e;
-    font-size: 0.75rem;
-    font-weight: bold;
-    transform: rotate(45deg) translateX(25%) translateY(-50%);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-`
-
 // Image gallery data - THIS ENTIRE ARRAY WILL BE REPLACED
 const galleryImages: GalleryImage[] = [
   // Existing Vercel-hosted images (assuming these are general or preferred overview shots)
@@ -321,6 +242,18 @@ const heroImages = [
   {
     src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-BShkMp1j00KpBAlfp5ty3Nh57lP61d.png",
     alt: "Historic Staircase",
+  },
+  {
+    src: "/images/wooden-hall2.jpeg",
+    alt: "Old Gym",
+  },
+  {
+    src: "/images/staff-room1.jpg",
+    alt: "Staff Room",
+  },
+  {
+    src: "/images/sports-hall3.jpg",
+    alt: "Sports Hall",
   },
 ];
 
@@ -926,6 +859,19 @@ export default function WorkspaceBrochure() {
   const [tourSubmitSuccess, setTourSubmitSuccess] = useState<boolean>(false);
   const [tourSubmitError, setTourSubmitError] = useState<string>(''); // New state for submission error
 
+  // State for Get In Touch Dialog (New)
+  const [getInTouchDialogOpen, setGetInTouchDialogOpen] = useState<boolean>(false);
+  const [getInTouchName, setGetInTouchName] = useState<string>('');
+  const [getInTouchEmail, setGetInTouchEmail] = useState<string>('');
+  const [getInTouchPhoneNumber, setGetInTouchPhoneNumber] = useState<string>('');
+  const [getInTouchMessage, setGetInTouchMessage] = useState<string>('');
+  const [getInTouchNameError, setGetInTouchNameError] = useState<string>('');
+  const [getInTouchEmailError, setGetInTouchEmailError] = useState<string>('');
+  const [getInTouchPhoneNumberError, setGetInTouchPhoneNumberError] = useState<string>('');
+  const [getInTouchSubmitting, setGetInTouchSubmitting] = useState<boolean>(false);
+  const [getInTouchSubmitSuccess, setGetInTouchSubmitSuccess] = useState<boolean>(false);
+  const [getInTouchSubmitError, setGetInTouchSubmitError] = useState<string>('');
+
   // Define time slots for the tour booking
   const generateTimeSlots = (startHour: number, endHour: number, intervalMinutes: number): string[] => {
     const slots: string[] = [];
@@ -953,21 +899,45 @@ export default function WorkspaceBrochure() {
   // Add state to track if panel has been auto-shown already
   const [panelAutoShown, setPanelAutoShown] = useState<boolean>(false)
 
+  // Add these new state variables for each swipe section
+  const [highlightsIndex, setHighlightsIndex] = useState<number>(0);
+  const [communityIndex, setCommunityIndex] = useState<number>(0);
+  const [getInTouchIndex, setGetInTouchIndex] = useState<number>(0);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768); // Tailwind 'md' breakpoint
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Add this effect to handle auto-showing the panel on scroll
   useEffect(() => {
     // Only run this effect on the client side
     if (typeof window === 'undefined') return;
     
     const handleScroll = () => {
-      // Show the panel when initially scrolling down
-      if (!panelAutoShown && window.scrollY > 50 && window.scrollY < 300 && !aboutExpanded) {
-        setAboutExpanded(true);
-        setPanelAutoShown(true);
-      }
-      
-      // Close the panel when scrolling past a certain point
-      if (panelAutoShown && aboutExpanded && window.scrollY > 350) {
-        setAboutExpanded(false);
+      const scrollY = window.scrollY;
+      if (isMobile) {
+        // Mobile: Show later, hide later
+        if (!panelAutoShown && scrollY > 800 && scrollY < 1100 && !aboutExpanded) {
+          setAboutExpanded(true);
+          setPanelAutoShown(true);
+        }
+        if (panelAutoShown && aboutExpanded && scrollY > 1150) {
+          setAboutExpanded(false);
+        }
+      } else {
+        // Desktop: Original logic
+        if (!panelAutoShown && scrollY > 50 && scrollY < 300 && !aboutExpanded) {
+          setAboutExpanded(true);
+          setPanelAutoShown(true);
+        }
+        if (panelAutoShown && aboutExpanded && scrollY > 350) {
+          setAboutExpanded(false);
+        }
       }
     };
     
@@ -978,7 +948,7 @@ export default function WorkspaceBrochure() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [aboutExpanded, panelAutoShown]); // Add panelAutoShown to dependencies
+  }, [aboutExpanded, panelAutoShown, isMobile]); // Add isMobile to dependencies
 
   // Cycle through hero images
   useEffect(() => {
@@ -1216,6 +1186,13 @@ export default function WorkspaceBrochure() {
     })
   }
 
+  const scrollToExploreSpaces = () => {
+    document.getElementById('explore-spaces-section')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }
+
   // Add this function to handle the booking process
   const handleBookTour = () => {
     setTourDialogOpen(true); 
@@ -1267,7 +1244,7 @@ export default function WorkspaceBrochure() {
       setInquiryEmailError('Please enter your email');
       isValid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(inquiryEmail)) {
-      setInquiryEmailError('Please enter a valid email address');
+      setInquiryEmailError('Please enter a valid email address (e.g., name@example.com)');
       isValid = false;
     } else {
       setInquiryEmailError('');
@@ -1275,6 +1252,9 @@ export default function WorkspaceBrochure() {
 
     if (!inquiryPhoneNumber) {
       setInquiryPhoneNumberError('Please enter your phone number');
+      isValid = false;
+    } else if (!/^[+]?[\d\s()-]{8,20}$/.test(inquiryPhoneNumber)) { // Added phone number format validation
+      setInquiryPhoneNumberError('Please enter a valid phone number (digits, spaces, -, () are allowed)');
       isValid = false;
     } else {
       setInquiryPhoneNumberError('');
@@ -1355,7 +1335,7 @@ export default function WorkspaceBrochure() {
       setTourEmailError('Please enter your email');
       tourIsValid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(tourEmail)) {
-      setTourEmailError('Please enter a valid email address');
+      setTourEmailError('Please enter a valid email address (e.g., name@example.com)');
       tourIsValid = false;
     } else {
       setTourEmailError('');
@@ -1363,6 +1343,9 @@ export default function WorkspaceBrochure() {
 
     if (!tourPhoneNumber) {
       setTourPhoneNumberError('Please enter your phone number');
+      tourIsValid = false;
+    } else if (!/^[+]?[\d\s()-]{8,20}$/.test(tourPhoneNumber)) { // Added phone number format validation
+      setTourPhoneNumberError('Please enter a valid phone number (digits, spaces, -, () are allowed)');
       tourIsValid = false;
     } else {
       setTourPhoneNumberError('');
@@ -1572,11 +1555,121 @@ export default function WorkspaceBrochure() {
     };
   }, []);
 
+  const handleOpenGetInTouchDialog = () => {
+    setGetInTouchDialogOpen(true);
+    setGetInTouchSubmitSuccess(false);
+    setGetInTouchSubmitError('');
+    // Clear form fields
+    setGetInTouchName('');
+    setGetInTouchEmail('');
+    setGetInTouchPhoneNumber('');
+    setGetInTouchMessage('');
+  };
+
+  const handleGetInTouchSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let isValid = true;
+    setGetInTouchSubmitError('');
+
+    if (!getInTouchName) {
+      setGetInTouchNameError('Please enter your name');
+      isValid = false;
+    } else {
+      setGetInTouchNameError('');
+    }
+
+    if (!getInTouchEmail) {
+      setGetInTouchEmailError('Please enter your email');
+      isValid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(getInTouchEmail)) {
+      setGetInTouchEmailError('Please enter a valid email address');
+      isValid = false;
+    } else {
+      setGetInTouchEmailError('');
+    }
+
+    if (!getInTouchPhoneNumber) {
+      setGetInTouchPhoneNumberError('Please enter your phone number');
+      isValid = false;
+    } else if (!/^[+]?[\d\s()-]{8,20}$/.test(getInTouchPhoneNumber)) { // Added phone number format validation
+      setGetInTouchPhoneNumberError('Please enter a valid phone number (digits, spaces, -, () are allowed)');
+      isValid = false;
+    } else {
+      setGetInTouchPhoneNumberError('');
+    }
+
+    if (isValid) {
+      setGetInTouchSubmitting(true);
+      setGetInTouchSubmitSuccess(false);
+      try {
+        const response = await fetch('/api/inquiry', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inquiryName: getInTouchName,
+            inquiryEmail: getInTouchEmail,
+            inquiryPhoneNumber: getInTouchPhoneNumber,
+            inquiryMessage: getInTouchMessage || "General inquiry via Get in Touch form.",
+            spaceTitle: "General Inquiry (Get in Touch)",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.details || `Server responded with ${response.status}`);
+        }
+
+        setGetInTouchSubmitSuccess(true);
+        setGetInTouchDialogOpen(false); 
+        toast.success("Message Sent!", {
+          description: "Thank you for reaching out! We will get back to you shortly.",
+          duration: 5000,
+        });
+
+      } catch (error) {
+        console.error("Error submitting Get in Touch form:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const userFriendlyError = "Sorry, there was an issue sending your message. Please try again later.";
+        setGetInTouchSubmitError(userFriendlyError);
+        toast.error("Message Failed", { description: userFriendlyError, duration: 5000 });
+      } finally {
+        setGetInTouchSubmitting(false);
+      }
+    }
+  };
+
+  // Add these helper functions for the swipe sections
+  const nextHighlight = () => {
+    setHighlightsIndex((prev) => (prev + 1) % 3);
+  };
+
+  const prevHighlight = () => {
+    setHighlightsIndex((prev) => (prev - 1 + 3) % 3);
+  };
+
+  const nextCommunity = () => {
+    setCommunityIndex((prev) => (prev + 1) % 3);
+  };
+
+  const prevCommunity = () => {
+    setCommunityIndex((prev) => (prev - 1 + 3) % 3);
+  };
+
+  const nextGetInTouch = () => {
+    setGetInTouchIndex((prev) => (prev + 1) % 3);
+  };
+
+  const prevGetInTouch = () => {
+    setGetInTouchIndex((prev) => (prev - 1 + 3) % 3);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <style jsx global>{scrollbarHideStyles}</style>
       <style jsx global>{calendarStyles}</style>
-      <style jsx global>{cta_buttonStyles}</style>
       
       {/* Additional global styles for calendar specific issues */}
       <style jsx global>{`
@@ -1615,10 +1708,17 @@ export default function WorkspaceBrochure() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-[#1a365d] font-medium hidden md:flex"
-              onClick={scrollToContact}
+              className="text-[#1a365d] font-medium hidden md:flex hover:bg-primary/10 hover:text-primary transition-colors duration-200"
+              onClick={handleOpenGetInTouchDialog} // Changed from scrollToContact
             >
-              Contact Us
+              Get in Touch
+            </Button>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white font-medium rounded-md shadow-sm hover:shadow-md transform hover:-translate-y-px transition-all duration-200 sm:px-3 sm:py-1.5 px-2 py-1 text-xs sm:text-sm"
+              onClick={handleBookTour}
+            >
+              <span className="hidden sm:inline">Book a Tour </span><ArrowRight className="ml-1 sm:ml-1.5 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -1626,7 +1726,7 @@ export default function WorkspaceBrochure() {
 
       {/* Listing Title */}
       <section className="container mx-auto px-4 pt-8 pb-4">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1a365d] max-w-3xl">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1a365d] max-w-3xl">
           The Village: A Historic School Building Reimagined
         </h1>
         <div className="flex flex-wrap items-center justify-between mt-4">
@@ -1673,16 +1773,15 @@ export default function WorkspaceBrochure() {
           <div className="flex justify-end relative">
             {/* Side Panel - now positioned to right of hero image with overlap */}
             <div
-              className={`fixed h-[72vh] bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-xl shadow-2xl transition-all transform duration-700 ease-in-out z-50 overflow-hidden
-                ${aboutExpanded 
-                  ? "opacity-100 translate-x-0" 
-                  : "opacity-0 translate-x-full pointer-events-none"
-                }`}
+              className={`fixed bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-xl shadow-2xl transition-all transform duration-700 ease-in-out z-50 ${  // Removed overflow-hidden from base
+                isMobile ? 
+                  `w-[90vw] left-1/2 h-auto ${aboutExpanded ? 'opacity-100 -translate-x-1/2 translate-y-0' : 'opacity-0 -translate-x-1/2 translate-y-[100vh] pointer-events-none'}` // Removed max-h-[70vh] and overflow-y-auto for mobile
+                : 
+                  `w-[400px] h-[72vh] right-[50px] overflow-hidden ${aboutExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`
+              }`}
               style={{ 
-                width: '400px',  // Reduced width from 500px to 400px
-                right: '50px',   // Positioned more to the right (reduced from 100px to 50px)
-                top: '100px',    // Position it down a bit from the top
                 border: '1px solid rgba(255, 255, 255, 0.8)',
+                top: isMobile ? '15vh' : '100px',
               }}
             >
               {/* Remove decorative elements */}
@@ -1715,7 +1814,7 @@ export default function WorkspaceBrochure() {
                   </div>
                   
                   <p className="text-gray-700 leading-relaxed">
-                    Each space highlights original features while incorporating modern amenities and technology, perfect for corporate events, community gatherings, or private celebrations.
+                    Each space, from private offices to large event halls, highlights original features while incorporating modern amenities and technology. Perfect for focused work, collaborative projects, corporate events, community gatherings, or private celebrations.
                   </p>
                   
                   <div className="flex items-center py-2 my-2">
@@ -1731,10 +1830,10 @@ export default function WorkspaceBrochure() {
                 
                 <div className="mt-6 flex justify-end">
                   <Button 
-                    onClick={scrollToContact}
+                    onClick={scrollToExploreSpaces} // Changed from scrollToContact
                     className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-4 py-2 shadow-sm transform hover:-translate-y-1 transition-all duration-300"
                   >
-                    Get in Touch
+                    Explore Our Spaces
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
@@ -1781,7 +1880,7 @@ export default function WorkspaceBrochure() {
                 </div>
               </div>
             </div>
-            <button
+            {/* <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleContentImageClick(currentSpaceImageIndex);
@@ -1790,10 +1889,10 @@ export default function WorkspaceBrochure() {
               aria-label="Expand image"
             >
                 <Expand className="h-5 w-5 text-gray-700" />
-            </button>
+            </button> */}
 
             {/* Image indicator dots */}
-            <div className="absolute bottom-4 right-4 flex space-x-2">
+            {/* <div className="absolute bottom-4 right-4 flex space-x-2">
               {heroImages.map((_, index) => (
                 <button
                   key={index}
@@ -1802,7 +1901,7 @@ export default function WorkspaceBrochure() {
                   aria-label={`View image ${index + 1}`}
                 />
               ))}
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -1972,28 +2071,28 @@ export default function WorkspaceBrochure() {
       </section>
 
 {/* Introduction Banner */}
-<section className="bg-[#F1F5F9] py-16 mb-12">
+<section className="bg-[#F1F5F9] py-12 sm:py-16 mb-12">
   <div className="container mx-auto px-4 text-center">
-    <h2 className="text-3xl md:text-4xl font-light text-[#1a365d] mb-4">
+    <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-[#1a365d] mb-4">
       A Versatile Venue for <span className="font-bold">Every Occasion</span>
     </h2>
-    <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
+    <p className="max-w-2xl sm:max-w-3xl mx-auto text-base sm:text-lg text-gray-600 mb-8">
       Our historic school building has been reimagined as a modern, flexible workspace with character and charm.
       From corporate events to sports activities, we offer a range of spaces to suit your needs.
     </p>
-    <div className="flex flex-wrap justify-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
       <Button 
-        className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-6 text-lg rounded-xl shadow-lg cta-button"
+        className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-3 text-lg rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
         onClick={handleBookTour}
       >
         Book a Tour <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
       <Button 
         variant="outline" 
-        className="text-[#0f766e] border-[#0f766e] hover:bg-[#0f766e]/10 px-6 py-6 rounded-xl"
-        onClick={scrollToContact}
+        className="text-gray-700 border-gray-300 px-8 py-3 text-lg rounded-lg hover:bg-gray-100 transition-all duration-300"
+        onClick={scrollToExploreSpaces} // Changed from scrollToContact
       >
-        Contact Us
+        Explore Spaces <ChevronRight className="ml-2 h-5 w-5" />
       </Button>
     </div>
   </div>
@@ -2073,17 +2172,18 @@ export default function WorkspaceBrochure() {
           {/* Spaces Tabs - MOVED UP */}
          
 {/* Main navigation tabs */}
-<div className="relative mb-12 mt-4">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#f0fdfa] via-[#ecfdf5] to-[#f0fdfa] rounded-xl -z-10"></div>
+<div id="explore-spaces-section" className="relative mb-12 mt-4">
+  <div className="absolute inset-0 bg-gradient-to-r from-[#f0fdfa] via-[#ecfdf5] to-[#f0fdfa] rounded-xl -z-10"></div>
  
   <div className="max-w-5xl mx-auto py-6 px-4">
-    <h3 className="text-center text-3xl md:text-4xl font-light text-[#1a365d] mb-8">
+    <h3 className="text-center text-2xl sm:text-3xl md:text-4xl font-light text-[#1a365d] mb-8">
       <span className="relative inline-block">
         Explore Our <span className="font-bold">Spaces</span>
       </span>
     </h3>
    
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {/* Update grid classes for better mobile layout */}
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mx-auto">
       {/* Day Hire Card */}
       <div 
         onClick={() => handleTabChange("day-hire")}
@@ -2091,15 +2191,15 @@ export default function WorkspaceBrochure() {
         style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${activeSection === "day-hire" ? "from-[#0f766e] to-[#134e4a]" : "from-gray-50 to-white group-hover:from-[#f0fdfa] group-hover:to-white"} transition-colors duration-500 z-0`}></div>
-        <div className="relative z-10 p-6 flex flex-col items-center transition-transform duration-500 transform-gpu h-full">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${activeSection === "day-hire" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
-            <Building className={`h-7 w-7 ${activeSection === "day-hire" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
-              </div>
-          <h4 className={`font-semibold text-lg mb-2 text-center transition-colors duration-300 ${activeSection === "day-hire" ? "text-white" : "text-gray-900"}`}>Day Hire Spaces</h4>
-          <p className={`text-sm text-center mb-4 transition-colors duration-300 ${activeSection === "day-hire" ? "text-white/80" : "text-gray-600"}`}>Perfect for events, workshops, and gatherings</p>
-          <span className={`mt-auto py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === "day-hire" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
+        <div className="relative z-10 p-3 sm:p-6 flex flex-col items-center text-center transition-transform duration-500 transform-gpu h-full">
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-500 ${activeSection === "day-hire" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
+            <Building className={`h-5 w-5 sm:h-7 sm:w-7 ${activeSection === "day-hire" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
+          </div>
+          <h4 className={`font-semibold text-sm sm:text-lg mb-1 sm:mb-2 text-center transition-colors duration-300 ${activeSection === "day-hire" ? "text-white" : "text-gray-900"}`}>Day Hire Spaces</h4>
+          <p className={`text-sm text-center mb-4 transition-colors duration-300 hidden sm:block ${activeSection === "day-hire" ? "text-white/80" : "text-gray-600"}`}>Perfect for events, workshops, and gatherings</p>
+          <span className={`mt-auto py-1 px-2 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${activeSection === "day-hire" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
             {activeSection === "day-hire" ? "Currently Viewing" : "Explore Spaces"}
-        </span>
+          </span>
         </div>
       </div>
 
@@ -2110,15 +2210,15 @@ export default function WorkspaceBrochure() {
         style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${activeSection === "office" ? "from-[#0f766e] to-[#134e4a]" : "from-gray-50 to-white group-hover:from-[#f0fdfa] group-hover:to-white"} transition-colors duration-500 z-0`}></div>
-        <div className="relative z-10 p-6 flex flex-col items-center transition-transform duration-500 transform-gpu h-full">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${activeSection === "office" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
-            <Briefcase className={`h-7 w-7 ${activeSection === "office" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
-            </div>
-          <h4 className={`font-semibold text-lg mb-2 text-center transition-colors duration-300 ${activeSection === "office" ? "text-white" : "text-gray-900"}`}>Office Rentals</h4>
-          <p className={`text-sm text-center mb-4 transition-colors duration-300 ${activeSection === "office" ? "text-white/80" : "text-gray-600"}`}>Long-term dedicated workspace solutions</p>
-          <span className={`mt-auto py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === "office" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
+        <div className="relative z-10 p-3 sm:p-6 flex flex-col items-center text-center transition-transform duration-500 transform-gpu h-full">
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-500 ${activeSection === "office" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
+            <Briefcase className={`h-5 w-5 sm:h-7 sm:w-7 ${activeSection === "office" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
+          </div>
+          <h4 className={`font-semibold text-sm sm:text-lg mb-1 sm:mb-2 text-center transition-colors duration-300 ${activeSection === "office" ? "text-white" : "text-gray-900"}`}>Office Rentals</h4>
+          <p className={`text-sm text-center mb-4 transition-colors duration-300 hidden sm:block ${activeSection === "office" ? "text-white/80" : "text-gray-600"}`}>Long-term dedicated workspace solutions</p>
+          <span className={`mt-auto py-1 px-2 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${activeSection === "office" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
             {activeSection === "office" ? "Currently Viewing" : "Explore Offices"}
-        </span>
+          </span>
         </div>
       </div>
 
@@ -2129,15 +2229,15 @@ export default function WorkspaceBrochure() {
         style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${activeSection === "meeting-rooms" ? "from-[#0f766e] to-[#134e4a]" : "from-gray-50 to-white group-hover:from-[#f0fdfa] group-hover:to-white"} transition-colors duration-500 z-0`}></div>
-        <div className="relative z-10 p-6 flex flex-col items-center transition-transform duration-500 transform-gpu h-full">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${activeSection === "meeting-rooms" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
-            <Presentation className={`h-7 w-7 ${activeSection === "meeting-rooms" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
+        <div className="relative z-10 p-3 sm:p-6 flex flex-col items-center text-center transition-transform duration-500 transform-gpu h-full">
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-500 ${activeSection === "meeting-rooms" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
+            <Presentation className={`h-5 w-5 sm:h-7 sm:w-7 ${activeSection === "meeting-rooms" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
           </div>
-          <h4 className={`font-semibold text-lg mb-2 text-center transition-colors duration-300 ${activeSection === "meeting-rooms" ? "text-white" : "text-gray-900"}`}>Meeting Rooms</h4>
-          <p className={`text-sm text-center mb-4 transition-colors duration-300 ${activeSection === "meeting-rooms" ? "text-white/80" : "text-gray-600"}`}>Professional spaces for productive meetings</p>
-          <span className={`mt-auto py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === "meeting-rooms" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
+          <h4 className={`font-semibold text-sm sm:text-lg mb-1 sm:mb-2 text-center transition-colors duration-300 ${activeSection === "meeting-rooms" ? "text-white" : "text-gray-900"}`}>Meeting Rooms</h4>
+          <p className={`text-sm text-center mb-4 transition-colors duration-300 hidden sm:block ${activeSection === "meeting-rooms" ? "text-white/80" : "text-gray-600"}`}>Professional spaces for productive meetings</p>
+          <span className={`mt-auto py-1 px-2 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${activeSection === "meeting-rooms" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
             {activeSection === "meeting-rooms" ? "Currently Viewing" : "Explore Rooms"}
-        </span>
+          </span>
         </div>
       </div>
 
@@ -2148,15 +2248,15 @@ export default function WorkspaceBrochure() {
         style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${activeSection === "coworking" ? "from-[#0f766e] to-[#134e4a]" : "from-gray-50 to-white group-hover:from-[#f0fdfa] group-hover:to-white"} transition-colors duration-500 z-0`}></div>
-        <div className="relative z-10 p-6 flex flex-col items-center transition-transform duration-500 transform-gpu h-full">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${activeSection === "coworking" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
-            <Users className={`h-7 w-7 ${activeSection === "coworking" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
-        </div>
-          <h4 className={`font-semibold text-lg mb-2 text-center transition-colors duration-300 ${activeSection === "coworking" ? "text-white" : "text-gray-900"}`}>Coworking</h4>
-          <p className={`text-sm text-center mb-4 transition-colors duration-300 ${activeSection === "coworking" ? "text-white/80" : "text-gray-600"}`}>Flexible shared workspaces for professionals</p>
-          <span className={`mt-auto py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === "coworking" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
+        <div className="relative z-10 p-3 sm:p-6 flex flex-col items-center text-center transition-transform duration-500 transform-gpu h-full">
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-500 ${activeSection === "coworking" ? "bg-white/20 scale-110" : "bg-[#0f766e]/10 group-hover:scale-110"}`}>
+            <Users className={`h-5 w-5 sm:h-7 sm:w-7 ${activeSection === "coworking" ? "text-white" : "text-[#0f766e] group-hover:text-[#0f766e]"}`} />
+          </div>
+          <h4 className={`font-semibold text-sm sm:text-lg mb-1 sm:mb-2 text-center transition-colors duration-300 ${activeSection === "coworking" ? "text-white" : "text-gray-900"}`}>Coworking</h4>
+          <p className={`text-sm text-center mb-4 transition-colors duration-300 hidden sm:block ${activeSection === "coworking" ? "text-white/80" : "text-gray-600"}`}>Flexible shared workspaces for professionals</p>
+          <span className={`mt-auto py-1 px-2 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${activeSection === "coworking" ? "bg-white/20 text-white" : "bg-[#0f766e]/10 text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white"}`}>
             {activeSection === "coworking" ? "Currently Viewing" : "Explore Options"}
-        </span>
+          </span>
         </div>
       </div>
     </div>
@@ -2166,12 +2266,13 @@ export default function WorkspaceBrochure() {
 {/* Sub-tabs section */}
 <div className="mb-8 mt-0">
             {activeSection === "day-hire" && (
-    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-2 px-2 -mx-2 relative">
+    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-4 px-2 -mx-2 relative">
       <div 
         className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
         style={{
           left: indicatorStyle.left,
-          width: indicatorStyle.width
+          width: indicatorStyle.width,
+          bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
         }}
       ></div>
                 {Object.keys(eventSpacesData).map((key) => (
@@ -2188,106 +2289,188 @@ export default function WorkspaceBrochure() {
             )}
 
   {activeSection === "office" && (
-    <div className="w-full mb-6 px-2 -mx-2"> {/* Container for both rows */}
-      {/* First row of tabs */}
-      <div className="w-full flex flex-nowrap justify-start md:justify-center gap-4 mb-1 pb-1 relative overflow-x-auto">
-        {isFirstRowTab(activeSubTab) && (
-          <div 
-            className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width
-            }}
-          ></div>
-        )}
+    <div className="w-full mb-6 px-2 -mx-2"> {/* Container for all tab layouts */}
+      {/* Single row for mobile, hidden on md and above */}
+      <div className="md:hidden w-full flex flex-nowrap justify-start gap-4 pb-3 relative overflow-x-auto">
+        <div 
+          className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
+          style={{
+            left: indicatorStyle.left,
+            width: indicatorStyle.width,
+            bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
+          }}
+        ></div>
+        
+        {/* All office tab buttons in a single row for mobile */}
         <button
           data-subtab="director-office"
           onClick={() => handleSubTabChange("director-office")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "director-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "director-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["director-office"].title}
         </button>
         <button
           data-subtab="creative-labs"
           onClick={() => handleSubTabChange("creative-labs")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "creative-labs" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "creative-labs" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["creative-labs"].title}
         </button>
         <button
           data-subtab="team-office"
           onClick={() => handleSubTabChange("team-office")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "team-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "team-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["team-office"].title}
         </button>
         <button
           data-subtab="innovation-studio"
           onClick={() => handleSubTabChange("innovation-studio")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "innovation-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "innovation-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["innovation-studio"].title}
         </button>
-      </div>
-      
-      {/* Second row of tabs */}
-      <div className="w-full flex flex-nowrap justify-start md:justify-center gap-4 pb-1 relative overflow-x-auto hide-scrollbar">
-        {!isFirstRowTab(activeSubTab) && officeOptions[activeSubTab] && ( 
-          <div 
-            className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width
-            }}
-          ></div>
-        )}
         <button
           data-subtab="workshop-studio"
           onClick={() => handleSubTabChange("workshop-studio")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "workshop-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "workshop-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["workshop-studio"].title}
         </button>
         <button
           data-subtab="executive-suite"
           onClick={() => handleSubTabChange("executive-suite")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "executive-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "executive-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["executive-suite"].title}
         </button>
         <button
           data-subtab="team-hub"
           onClick={() => handleSubTabChange("team-hub")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "team-hub" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "team-hub" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["team-hub"].title}
         </button>
         <button
           data-subtab="consultation-rooms"
           onClick={() => handleSubTabChange("consultation-rooms")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "consultation-rooms" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "consultation-rooms" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["consultation-rooms"].title}
         </button>
         <button
           data-subtab="education-suite"
           onClick={() => handleSubTabChange("education-suite")}
-          className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "education-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          className={`px-4 py-1.5 text-base whitespace-nowrap transition-all duration-300 ${activeSubTab === "education-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
         >
           {officeOptions["education-suite"].title}
         </button>
-        {/* Seminar Room and Flex Training Suite are in data but not in tab UI as per original request to keep UI same */}
+      </div>
+      
+      {/* Original desktop view with two rows (hidden on mobile, visible on md and up) */}
+      <div className="hidden md:block">
+        {/* First row of tabs */}
+        <div className="w-full flex flex-nowrap justify-start md:justify-center gap-4 mb-1 pb-3 relative overflow-x-auto">
+          {isFirstRowTab(activeSubTab) && (
+            <div 
+              className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
+              style={{
+                left: indicatorStyle.left,
+                width: indicatorStyle.width,
+                bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
+              }}
+            ></div>
+          )}
+          <button
+            data-subtab="director-office"
+            onClick={() => handleSubTabChange("director-office")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "director-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["director-office"].title}
+          </button>
+          <button
+            data-subtab="creative-labs"
+            onClick={() => handleSubTabChange("creative-labs")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "creative-labs" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["creative-labs"].title}
+          </button>
+          <button
+            data-subtab="team-office"
+            onClick={() => handleSubTabChange("team-office")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "team-office" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["team-office"].title}
+          </button>
+          <button
+            data-subtab="innovation-studio"
+            onClick={() => handleSubTabChange("innovation-studio")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 ${activeSubTab === "innovation-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["innovation-studio"].title}
+          </button>
+        </div>
+        
+        {/* Second row of tabs */}
+        <div className="w-full flex flex-nowrap justify-start md:justify-center gap-4 pb-3 relative overflow-x-auto hide-scrollbar">
+          {!isFirstRowTab(activeSubTab) && officeOptions[activeSubTab] && (
+            <div 
+              className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
+              style={{
+                left: indicatorStyle.left,
+                width: indicatorStyle.width,
+                bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
+              }}
+            ></div>
+          )}
+          <button
+            data-subtab="workshop-studio"
+            onClick={() => handleSubTabChange("workshop-studio")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "workshop-studio" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["workshop-studio"].title}
+          </button>
+          <button
+            data-subtab="executive-suite"
+            onClick={() => handleSubTabChange("executive-suite")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "executive-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["executive-suite"].title}
+          </button>
+          <button
+            data-subtab="team-hub"
+            onClick={() => handleSubTabChange("team-hub")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "team-hub" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["team-hub"].title}
+          </button>
+          <button
+            data-subtab="consultation-rooms"
+            onClick={() => handleSubTabChange("consultation-rooms")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "consultation-rooms" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["consultation-rooms"].title}
+          </button>
+          <button
+            data-subtab="education-suite"
+            onClick={() => handleSubTabChange("education-suite")}
+            className={`px-4 py-1.5 text-base transition-all duration-300 whitespace-nowrap ${activeSubTab === "education-suite" ? "text-gray-800 font-medium" : "text-gray-500 hover:text-gray-800"}`}
+          >
+            {officeOptions["education-suite"].title}
+          </button>
+        </div>
       </div>
     </div>
   )}
 
   {activeSection === "meeting-rooms" && (
-    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-2 px-2 -mx-2 relative">
+    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-4 px-2 -mx-2 relative">
       <div 
         className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
         style={{
           left: indicatorStyle.left,
-          width: indicatorStyle.width
+          width: indicatorStyle.width,
+          bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
         }}
       ></div>
       {Object.keys(meetingRoomOptions).map((key) => (
@@ -2304,12 +2487,13 @@ export default function WorkspaceBrochure() {
   )}
 
   {activeSection === "coworking" && (
-    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-2 px-2 -mx-2 relative">
+    <div className="w-full flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-4 mb-6 overflow-x-auto pb-4 px-2 -mx-2 relative">
       <div 
         className="absolute bottom-0 h-0.5 bg-[#0f766e] transition-all duration-300 ease-in-out" 
         style={{
           left: indicatorStyle.left,
-          width: indicatorStyle.width
+          width: indicatorStyle.width,
+          bottom: '8px', // Add distance from bottom to prevent overlap with scrollbar
         }}
       ></div>
       {Object.keys(coworkingOptions).map((key) => (
@@ -2361,7 +2545,7 @@ export default function WorkspaceBrochure() {
         </div>
 
         {/* Add expand button */}
-        <button
+        {/* <button
           onClick={(e) => {
             e.stopPropagation();
             handleContentImageClick(currentSpaceImageIndex);
@@ -2370,7 +2554,7 @@ export default function WorkspaceBrochure() {
           aria-label="Expand image"
         >
           <Expand className="h-5 w-5 text-gray-700" />
-        </button>
+        </button> */}
 
         {/* Image navigation controls */}
         {getCurrentContent()!.images.length > 1 && (
@@ -2416,7 +2600,12 @@ export default function WorkspaceBrochure() {
           {getCurrentContent()!.title}
         </h3>
         <p className="text-gray-700 mb-6 animate-in fade-in slide-in-from-right-12 duration-500 ease-in-out delay-75">
-          {getCurrentContent()!.description}
+          <span className="md:hidden block">
+            {getCurrentContent()!.description.length > 100 
+              ? getCurrentContent()!.description.substring(0, 100).split('.')[0] + '.' 
+              : getCurrentContent()!.description}
+          </span>
+          <span className="hidden md:inline">{getCurrentContent()!.description}</span>
         </p>
 
         {/* Capacity */}
@@ -2464,10 +2653,10 @@ export default function WorkspaceBrochure() {
         )}
 
         <Button
-          className="mt-6 bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-6 py-6 rounded-xl shadow-md animate-in fade-in-50 delay-300 duration-500 cta-button"
+          className="mt-10 bg-primary hover:bg-primary/80 text-white px-14 py-6 text-lg rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1.5 transition-all duration-300 ease-in-out animate-in fade-in-50 delay-300 duration-500 focus:outline-none focus:ring-4 focus:ring-primary/50 focus:ring-offset-2 active:bg-primary/70"
           onClick={handleOpenInquiryDialog}
         >
-          Inquire About This Space <ArrowRight className="ml-2 h-5 w-5" />
+          Enquire About This Space
         </Button>
       </div>
     </div>
@@ -2475,9 +2664,9 @@ export default function WorkspaceBrochure() {
 )}
 
         {/* Host Introduction - MOVED DOWN */}
-        <div className="flex justify-between items-start border-b pb-6 mb-12">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">Managed by Josh and George</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start border-b pb-6 mb-12 text-center sm:text-left">
+          <div className="mb-4 sm:mb-0">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Managed by Josh and George</h2>
             <p className="text-gray-700">Multiple spaces · Suitable for events, meetings, and activities</p>
           </div>
           <div className="flex -space-x-4">
@@ -2493,33 +2682,108 @@ export default function WorkspaceBrochure() {
         </div>
 
         {/* Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
-            <Award className="h-8 w-8 text-primary mb-3" />
+        <div className="mb-16">
+          <div className="relative">
+            {/* Mobile swipe controls */}
+            <div className="md:hidden relative overflow-hidden mb-12">
+              <div 
+                className="flex transition-transform duration-300 ease-in-out" 
+                style={{ transform: `translateX(-${highlightsIndex * 100}%)` }}
+              >
+                <div className="flex-shrink-0 w-full p-2">
+          <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full">
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <Award className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+            </div>
             <h3 className="font-bold text-lg mb-2 text-foreground">Grade II Listed Building</h3>
             <p className="text-[#1a365d]">
               Originally known as Silwood House (formerly Berry House), our building was granted Grade II listed status in 1981, recognizing its special architectural and historic interest.
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
-            <MapPin className="h-8 w-8 text-primary mb-3" />
-            <h3 className="font-bold text-lg mb-2 text-foreground">Prime Location</h3>
+                </div>
+                <div className="flex-shrink-0 w-full p-2">
+          <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full">
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <MapPin className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+            </div>
+            <h3 className="font-bold text-lg mb-2 text-foreground">Convenient Location</h3>
             <p className="text-[#1a365d]">
-              Centrally located in Tulse Hill, South London with excellent transport links and ample parking facilities. Just minutes from central London with easy access to major routes.
+              Located in Tulse Hill, South London, with good transport links and ample on-site parking. Easy to reach and well-connected for your convenience.
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
-            <Calendar className="h-8 w-8 text-primary mb-3" />
-            <h3 className="font-bold text-lg mb-2 text-foreground">Flexible Booking</h3>
+                </div>
+                <div className="flex-shrink-0 w-full p-2">
+          <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full">
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <Calendar className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+            </div>
+            <h3 className="font-bold text-lg mb-2 text-foreground">Flexible Spaces & Booking</h3>
             <p className="text-[#1a365d]">
-              Book by the hour, half-day, or full day. We offer flexible options to suit your needs with competitive rates and customizable packages for regular bookings.
+              From individual workspaces and longer-term office rentals to large event halls, find the perfect fit for your needs. Book by the hour, half-day, full day, or discuss longer arrangements.
             </p>
+          </div>
+                </div>
+              </div>
+              
+              {/* Navigation buttons */}
+              <button 
+                onClick={prevHighlight}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+                aria-label="Previous highlight"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-700" />
+              </button>
+              <button 
+                onClick={nextHighlight}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+                aria-label="Next highlight"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-700" />
+              </button>
+              
+              {/* Navigation dots */}
+              <div className="flex justify-center gap-2 mt-4">
+                {[0, 1, 2].map((idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setHighlightsIndex(idx)}
+                    className={`w-2 h-2 rounded-full transition-all ${idx === highlightsIndex ? "bg-primary scale-125" : "bg-gray-300"}`}
+                    aria-label={`Go to highlight ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* Desktop view (unchanged) */}
+            <div className="hidden md:flex md:overflow-x-auto md:space-x-4 md:pb-4 hide-scrollbar md:grid md:grid-cols-3 md:gap-6 md:space-x-0 md:pb-0 md:overflow-visible">
+              <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
+                <Award className="h-8 w-8 text-primary mb-3" />
+                <h3 className="font-bold text-lg mb-2 text-foreground">Grade II Listed Building</h3>
+                <p className="text-[#1a365d]">
+                  Originally known as Silwood House (formerly Berry House), our building was granted Grade II listed status in 1981, recognizing its special architectural and historic interest.
+                </p>
+              </div>
+              <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
+                <MapPin className="h-8 w-8 text-primary mb-3" />
+                <h3 className="font-bold text-lg mb-2 text-foreground">Convenient Location</h3>
+                <p className="text-[#1a365d]">
+                  Located in Tulse Hill, South London, with good transport links and ample on-site parking. Easy to reach and well-connected for your convenience.
+                </p>
+              </div>
+              <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover h-full">
+                <Calendar className="h-8 w-8 text-primary mb-3" />
+                <h3 className="font-bold text-lg mb-2 text-foreground">Flexible Spaces & Booking</h3>
+                <p className="text-[#1a365d]">
+                  From individual workspaces and longer-term office rentals to large event halls, find the perfect fit for your needs. Book by the hour, half-day, full day, or discuss longer arrangements.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Amenities */}
         <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-foreground">Amenities & Services</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-8 text-foreground">Amenities & Services</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8">
             <div className="flex items-center gap-3">
               <Wifi className="h-6 w-6 text-primary" />
@@ -2562,7 +2826,7 @@ export default function WorkspaceBrochure() {
 
         {/* Who We Are */}
         <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-foreground">Who We Are</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-8 text-foreground">Who We Are</h2>
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <p className="text-[#1a365d] mb-6">
@@ -2593,10 +2857,82 @@ export default function WorkspaceBrochure() {
         </div>
 
         {/* Community */}
-        <div className="mb-16 bg-accent/30 p-8 rounded-xl">
-          <h2 className="text-2xl font-bold mb-8 text-foreground text-center">Community Engagement</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
+        <div className="mb-16 bg-accent/30 p-6 sm:p-8 rounded-xl">
+          <h2 className="text-xl sm:text-2xl font-bold mb-8 text-foreground text-center">Community Engagement</h2>
+          
+          {/* Mobile swipe controls */}
+          <div className="md:hidden relative overflow-hidden mb-12">
+            <div 
+              className="flex transition-transform duration-300 ease-in-out" 
+              style={{ transform: `translateX(-${communityIndex * 100}%)` }}
+            >
+              <div className="flex-shrink-0 w-full p-2">
+            <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full bg-white shadow-sm">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary/10 rounded-full">
+                <Users className="h-8 w-8 text-[#0f766e]" />
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-foreground">Local Events</h3>
+              <p className="text-[#1a365d]">
+                We regularly host community events, workshops, and networking opportunities that bring together local businesses and residents.
+              </p>
+            </div>
+              </div>
+              <div className="flex-shrink-0 w-full p-2">
+            <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full bg-white shadow-sm">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary/10 rounded-full">
+                <Award className="h-8 w-8 text-[#0f766e]" />
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-foreground">Charity Partnerships</h3>
+              <p className="text-[#1a365d]">
+                    We partner with local charities and non-profit organizations to amplify their impact, offering dedicated space and collaborative opportunities for community initiatives.
+              </p>
+            </div>
+              </div>
+              <div className="flex-shrink-0 w-full p-2">
+            <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full bg-white shadow-sm">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary/10 rounded-full">
+                <Calendar className="h-8 w-8 text-[#0f766e]" />
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-foreground">Sustainability</h3>
+              <p className="text-[#1a365d]">
+                    Our commitment to sustainability is reflected in the adaptive reuse of this historic building, giving it new purpose and preserving its unique character for the community and future generations.
+              </p>
+            </div>
+          </div>
+            </div>
+            
+            {/* Navigation buttons */}
+            <button 
+              onClick={prevCommunity}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+              aria-label="Previous community item"
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700" />
+            </button>
+            <button 
+              onClick={nextCommunity}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+              aria-label="Next community item"
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700" />
+            </button>
+            
+            {/* Navigation dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {[0, 1, 2].map((idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCommunityIndex(idx)}
+                  className={`w-2 h-2 rounded-full transition-all ${idx === communityIndex ? "bg-primary scale-125" : "bg-gray-300"}`}
+                  aria-label={`Go to community item ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop view (unchanged) */}
+          <div className="hidden md:flex md:overflow-x-auto md:space-x-4 md:pb-4 hide-scrollbar md:grid md:grid-cols-3 md:gap-6 md:space-x-0 md:pb-0 md:overflow-visible">
+            <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-primary" />
               </div>
@@ -2605,25 +2941,26 @@ export default function WorkspaceBrochure() {
                 We regularly host community events, workshops, and networking opportunities that bring together local businesses and residents.
               </p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
+            <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Award className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-bold text-lg mb-2 text-foreground">Charity Partnerships</h3>
               <p className="text-[#1a365d]">
-                We offer discounted rates for local charities and non-profit organizations, and dedicate space for community initiatives.
+                We partner with local charities and non-profit organizations to amplify their impact, offering dedicated space and collaborative opportunities for community initiatives.
               </p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
+            <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto bg-white p-6 rounded-lg shadow-sm border border-gray-100 card-hover">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Calendar className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-bold text-lg mb-2 text-foreground">Sustainability</h3>
               <p className="text-[#1a365d]">
-                Our renovation prioritized eco-friendly materials and energy-efficient systems, preserving this historic building for future generations.
+                Our commitment to sustainability is reflected in the adaptive reuse of this historic building, giving it new purpose and preserving its unique character for the community and future generations.
               </p>
             </div>
           </div>
+          
           <div className="text-center mt-8">
             <Button
               variant="outline"
@@ -2637,9 +2974,9 @@ export default function WorkspaceBrochure() {
 
         {/* Location */}
         <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-[#1a365d]">Location</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-8 text-[#1a365d]">Location</h2>
          
-<div className="relative h-80 w-full rounded-lg overflow-hidden mb-6 shadow-md">
+<div className="relative h-64 sm:h-80 w-full rounded-lg overflow-hidden mb-6 shadow-md">
   {/* Google Maps iframe embed */}
   <iframe
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.9558246235247!2d-0.10840492292969251!3d51.44037917180777!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48760467d8d3a2c7%3A0x7e3d1e8d4c2c1c0a!2s155%20Tulse%20Hill%2C%20London%20SW2%203UP%2C%20UK!5e0!3m2!1sen!2sus!4v1710442800000!5m2!1sen!2sus"
@@ -2720,9 +3057,16 @@ export default function WorkspaceBrochure() {
 
         {/* Contact & Booking */}
           
-        <div id="contact-section" className="bg-gradient-to-br from-[#f8fafc] to-[#f0fdfa] p-12 rounded-lg shadow-sm">
-          <h2 className="text-3xl font-bold mb-12 text-center text-[#1a365d]">Get in Touch</h2>
-          <div className="grid md:grid-cols-3 gap-12 mb-12">
+        <div id="contact-section" className="bg-[#f8fafc] p-6 sm:p-12 rounded-lg">
+          <h2 className="text-xl sm:text-2xl font-bold mb-12 text-center text-[#1a365d]">Get in Touch</h2>
+          
+          {/* Mobile swipe controls */}
+          <div className="md:hidden relative overflow-hidden mb-12">
+            <div 
+              className="flex transition-transform duration-300 ease-in-out" 
+              style={{ transform: `translateX(-${getInTouchIndex * 100}%)` }}
+            >
+              <div className="flex-shrink-0 w-full p-2">
             <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <Phone className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
@@ -2731,17 +3075,92 @@ export default function WorkspaceBrochure() {
               <p className="text-gray-700 mb-1">+447975708289</p>
               <p className="text-gray-600">Monday-Friday: 9am-5pm</p>
             </div>
-            
+              </div>
+              <div className="flex-shrink-0 w-full p-2">
+                <div 
+                  className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+                  onClick={handleOpenGetInTouchDialog}
+                >
+                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Mail className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2 text-[#1a365d]">Email Us</h3>
+                  <p className="text-gray-700 mb-1 hover:underline">thevillagestmartins@gmail.com</p>
+                  <p className="text-gray-600">We respond within 24 hours</p>
+                </div>
+              </div>
+              <div className="flex-shrink-0 w-full p-2">
             <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Calendar className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2 text-[#1a365d]">Visit Us</h3>
+                  <p className="text-gray-700 mb-1">
+                    <button 
+                      onClick={handleBookTour}
+                      className="text-primary hover:underline hover:text-primary/80 transition-all duration-300"
+                    >
+                      Book a tour of our facilities
+                    </button>
+                  </p>
+                  <p className="text-gray-600">Available 7 days a week</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Navigation buttons */}
+            <button 
+              onClick={prevGetInTouch}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+              aria-label="Previous contact method"
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700" />
+            </button>
+            <button 
+              onClick={nextGetInTouch}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md"
+              aria-label="Next contact method"
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700" />
+            </button>
+            
+            {/* Navigation dots */}
+            <div className="flex justify-center mt-4 gap-2">
+              {[0, 1, 2].map((idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setGetInTouchIndex(idx)}
+                  className={`w-2 h-2 rounded-full transition-all ${idx === getInTouchIndex ? "bg-primary scale-125" : "bg-gray-300"}`}
+                  aria-label={`Go to contact method ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop view (unchanged) */}
+          <div className="hidden md:flex md:overflow-x-auto md:space-x-4 md:pb-4 hide-scrollbar md:grid md:grid-cols-3 md:gap-8 md:space-x-0 md:pb-0 md:overflow-visible sm:gap-12 mb-12">
+            <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Phone className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-[#1a365d]">Call Us</h3>
+              <p className="text-gray-700 mb-1">+447975708289</p>
+              <p className="text-gray-600">Monday-Friday: 9am-5pm</p>
+            </div>
+            
+            <div 
+              className="flex-shrink-0 w-72 sm:w-80 md:w-auto text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+              onClick={handleOpenGetInTouchDialog}
+            >
               <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <Mail className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
               </div>
               <h3 className="font-bold text-lg mb-2 text-[#1a365d]">Email Us</h3>
-              <p className="text-gray-700 mb-1">all@scailer.io</p>
+              <p className="text-gray-700 mb-1 hover:underline">thevillagestmartins@gmail.com</p>
               <p className="text-gray-600">We respond within 24 hours</p>
             </div>
             
-            <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <div className="flex-shrink-0 w-72 sm:w-80 md:w-auto text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <Calendar className="w-12 h-12 text-[#0f766e]" strokeWidth={1.25} />
               </div>
@@ -2760,14 +3179,11 @@ export default function WorkspaceBrochure() {
           
           <div className="text-center">
             <Button 
-              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-10 py-7 text-xl transition-all duration-500 transform hover:-translate-y-1 hover:shadow-xl rounded-xl cta-button relative overflow-visible"
+              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-12 py-5 text-xl rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
               onClick={handleBookTour}
             >
-              <span className="cta-ribbon">Popular</span>
-              Book a Tour Now
-              <Calendar className="ml-3 h-6 w-6" />
+              Book a Tour <Calendar className="ml-2 h-5 w-5" />
             </Button>
-            <p className="mt-4 text-gray-600">Discover our unique spaces with a personalized tour</p>
           </div>
         </div>
 
@@ -2777,9 +3193,9 @@ export default function WorkspaceBrochure() {
       {/* Footer */}
     <footer className="border-t py-12 bg-gray-100">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Column 1: Site Info */}
-          <div>
+          <div className="mb-6 sm:mb-0">
             <h3 className="text-xl font-bold text-[#1a365d] mb-4">The <span className="font-light">Village</span></h3>
             <p className="text-gray-600 text-sm leading-relaxed">
               A historic school building reimagined as a modern, flexible workspace with character and charm, offering versatile venue spaces for every occasion.
@@ -2787,7 +3203,7 @@ export default function WorkspaceBrochure() {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div>
+          <div className="mb-6 sm:mb-0">
             <h3 className="text-lg font-semibold text-[#1a365d] mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" onClick={(e) => { e.preventDefault(); handleTabChange('day-hire'); }} className="text-gray-600 hover:text-primary transition-colors">Day Hire</a></li>
@@ -2799,7 +3215,7 @@ export default function WorkspaceBrochure() {
           </div>
 
           {/* Column 3: Contact Info */}
-          <div>
+          <div className="mb-6 sm:mb-0">
             <h3 className="text-lg font-semibold text-[#1a365d] mb-4">Get in Touch</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start">
@@ -2847,120 +3263,115 @@ export default function WorkspaceBrochure() {
           setInquirySubmitSuccess(false); // Reset success state
         }
       }}>
-        <DialogContent className="sm:max-w-lg p-0 rounded-xl overflow-hidden border-0 shadow-2xl">
-          <div className="p-0">
-            <div className="bg-[#0f766e] p-8 text-white">
-              <div className="flex flex-col items-center text-center">
-                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-                  <Mail className="h-10 w-10 text-white" />
-                </div>
-                <DialogPrimitive.Title className="text-3xl font-bold text-white">
-                  Inquire About {getCurrentContent()?.title || 'This Space'}
-                </DialogPrimitive.Title>
-                <DialogPrimitive.Description className="text-white/90 mt-2">
-                  We'd love to help you plan your event
-                </DialogPrimitive.Description>
+        <DialogContent className="sm:max-w-lg p-0">
+          <div className="p-6 space-y-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Mail className="h-8 w-8 text-primary" />
               </div>
+              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
+                Inquire About {getCurrentContent()?.title || 'This Space'}
+          </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
+                Fill in your details below, and we'll get back to you.
+          </DialogPrimitive.Description>
             </div>
-            
-            <div className="p-8 space-y-6">
-              {inquirySubmitError && (
-                <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
-                  <p>{inquirySubmitError}</p>
-                </div>
-              )}
-              <form onSubmit={handleInquirySubmit}>
-                <div className="mb-4">
-                    <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="inquiry-name"
-                      value={inquiryName}
-                      onChange={(e) => setInquiryName(e.target.value)}
-                      className={`w-full px-3 py-2 border ${inquiryNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                      placeholder="Your Full Name"
-                      disabled={inquirySubmitting}
-                    />
-                    {inquiryNameError && <p className="mt-1 text-sm text-red-600">{inquiryNameError}</p>}
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                      id="inquiry-email"
-                      value={inquiryEmail}
-                      onChange={(e) => setInquiryEmail(e.target.value)}
-                      className={`w-full px-3 py-2 border ${inquiryEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                    placeholder="your@email.com"
-                    disabled={inquirySubmitting}
-                  />
-                    {inquiryEmailError && <p className="mt-1 text-sm text-red-600">{inquiryEmailError}</p>}
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="inquiry-phone" className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      id="inquiry-phone"
-                      value={inquiryPhoneNumber}
-                      onChange={(e) => setInquiryPhoneNumber(e.target.value)}
-                      className={`w-full px-3 py-2 border ${inquiryPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                      placeholder="+44 123 456 7890"
-                      disabled={inquirySubmitting}
-                    />
-                    {inquiryPhoneNumberError && <p className="mt-1 text-sm text-red-600">{inquiryPhoneNumberError}</p>}
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-1">
-                      Message (Optional)
-                    </label>
-                    <textarea
-                      id="inquiry-message"
-                      value={inquiryMessage}
-                      onChange={(e) => setInquiryMessage(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="Any additional details or specific interests?"
-                      rows={3}
-                      disabled={inquirySubmitting}
-                    ></textarea>
-                </div>
-                <div className="flex justify-end gap-4 mt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                      onClick={() => {
-                        setInquiryDialogOpen(false);
-                        setInquirySubmitError(''); // Also clear error on explicit cancel
-                      }}
-                      disabled={inquirySubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                      type="submit" 
-                      className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 cta-button"
-                      disabled={inquirySubmitting}
-                    >
-                      {inquirySubmitting ? (
-                        <div className="flex items-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Submitting...
-                        </div>
-                      ) : (
-                        'Send Inquiry'
-                      )}
-                    </Button>
-                  </div>
-              </form>
+            {inquirySubmitError && (
+              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                <p>{inquirySubmitError}</p>
+              </div>
+            )}
+            <form onSubmit={handleInquirySubmit}>
+            <div className="mb-4">
+                <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="inquiry-name"
+                  value={inquiryName}
+                  onChange={(e) => setInquiryName(e.target.value)}
+                  className={`w-full px-3 py-2 border ${inquiryNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="Your Full Name"
+                  disabled={inquirySubmitting}
+                />
+                {inquiryNameError && <p className="mt-1 text-sm text-red-600">{inquiryNameError}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                  id="inquiry-email"
+                  value={inquiryEmail}
+                  onChange={(e) => setInquiryEmail(e.target.value)}
+                  className={`w-full px-3 py-2 border ${inquiryEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                placeholder="your@email.com"
+                disabled={inquirySubmitting}
+              />
+                {inquiryEmailError && <p className="mt-1 text-sm text-red-600">{inquiryEmailError}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="inquiry-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="inquiry-phone"
+                  value={inquiryPhoneNumber}
+                  onChange={(e) => setInquiryPhoneNumber(e.target.value)}
+                  className={`w-full px-3 py-2 border ${inquiryPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="+44 123 456 7890"
+                  disabled={inquirySubmitting}
+                />
+                {inquiryPhoneNumberError && <p className="mt-1 text-sm text-red-600">{inquiryPhoneNumberError}</p>}
             </div>
+            <div className="mb-4">
+                <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="inquiry-message"
+                  value={inquiryMessage}
+                  onChange={(e) => setInquiryMessage(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Any additional details or specific interests?"
+                  rows={3}
+                  disabled={inquirySubmitting}
+                ></textarea>
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                  onClick={() => {
+                    setInquiryDialogOpen(false);
+                    setInquirySubmitError(''); // Also clear error on explicit cancel
+                  }}
+                  disabled={inquirySubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                  type="submit" 
+                  className="bg-primary hover:bg-primary/90 text-white"
+                  disabled={inquirySubmitting}
+                >
+                  {inquirySubmitting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </div>
+                  ) : (
+                    'Submit Inquiry'
+                  )}
+                </Button>
+              </div>
+            </form>
           </div>
         </DialogContent>
       </Dialog>
@@ -2973,200 +3384,305 @@ export default function WorkspaceBrochure() {
           setTourSubmitSuccess(false); // Reset success state
         }
       }}>
-        <DialogContent className="sm:max-w-lg p-0 rounded-xl overflow-hidden border-0 shadow-2xl">
-          <div className="p-0">
-            <div className="bg-[#0f766e] p-8 text-white">
-              <div className="flex flex-col items-center text-center">
-                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-                  <Calendar className="h-10 w-10 text-white" />
-                </div>
-                <DialogPrimitive.Title className="text-3xl font-bold text-white">
-                  Book Your Tour
-                </DialogPrimitive.Title>
-                <DialogPrimitive.Description className="text-white/90 mt-2">
-                  Experience The Village workspace in person
-                </DialogPrimitive.Description>
+        <DialogContent className="sm:max-w-lg p-0">
+          <div className="p-6 space-y-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Calendar className="h-8 w-8 text-primary" />
               </div>
+              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
+                Book a Tour
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
+                Enter your details below to schedule a tour.
+              </DialogPrimitive.Description>
             </div>
-            
-            <div className="p-8 space-y-6">
-              {tourSubmitError && (
-                <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
-                  <p>{tourSubmitError}</p>
-                </div>
-              )}
-              <form onSubmit={handleTourSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="tour-name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="tour-name"
-                    value={tourName}
-                    onChange={(e) => setTourName(e.target.value)}
-                    className={`w-full px-3 py-2 border ${tourNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                    placeholder="Your Full Name"
-                    disabled={tourSubmitting}
-                  />
-                  {tourNameError && <p className="mt-1 text-sm text-red-600">{tourNameError}</p>}
-                </div>
-                <div>
-                  <label htmlFor="tour-email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="tour-email"
-                    value={tourEmail}
-                    onChange={(e) => setTourEmail(e.target.value)}
-                    className={`w-full px-3 py-2 border ${tourEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                    placeholder="your@email.com"
-                    disabled={tourSubmitting}
-                  />
-                  {tourEmailError && <p className="mt-1 text-sm text-red-600">{tourEmailError}</p>}
-                </div>
-                <div>
-                  <label htmlFor="tour-phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="tour-phone"
-                    value={tourPhoneNumber}
-                    onChange={(e) => setTourPhoneNumber(e.target.value)}
-                    className={`w-full px-3 py-2 border ${tourPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                    placeholder="+44 123 456 7890"
-                    disabled={tourSubmitting}
-                  />
-                  {tourPhoneNumberError && <p className="mt-1 text-sm text-red-600">{tourPhoneNumberError}</p>}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
-                      Preferred Date
-                    </label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !tourDate && "text-muted-foreground",
-                            tourDateError && "border-red-500 focus-visible:ring-red-500"
-                          )}
-                          disabled={tourSubmitting}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 cursor-default">
-                        <DatePicker
-                          mode="single"
-                          selected={tourDate}
-                          onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
-                            setTourDate(selectedDate);
-                            if (selectedDate) setTourDateError('');
-                          }}
-                          disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
-                          initialFocus
-                          className="cursor-pointer rdp-root"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {tourDateError && <p className="mt-1 text-sm text-red-600">{tourDateError}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1">
-                      Preferred Time
-                    </label>
-                    {tourTimeError && <p className="mt-1 text-sm text-red-600">{tourTimeError}</p>}
-                    <div className="grid grid-cols-3 gap-2 mt-1">
-                      {timeSlots.map((slot) => (
-                        <Button
-                          key={slot}
-                          type="button"
-                          variant={tourTime === slot ? "default" : "outline"}
-                          onClick={() => {
-                            setTourTime(slot);
-                            if (slot) setTourTimeError('');
-                          }}
-                          className={cn(
-                            "w-full text-xs sm:text-sm h-10", // Adjusted height and text size
-                            tourTime === slot ? "bg-primary text-white hover:bg-primary/90" : "text-gray-700 hover:bg-gray-50",
-                            tourSubmitting && "opacity-50 cursor-not-allowed"
-                          )}
-                          disabled={tourSubmitting}
-                        >
-                          {format(new Date(`1970-01-01T${slot}:00`), slot.endsWith(":00") ? "h aa" : "h:mm aa")}
-                        </Button>
-                      ))}
-                    </div>
-                    {!tourTime && !tourTimeError && <p className="mt-1 text-xs text-muted-foreground">Please select a time.</p>}
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="tour-message" className="block text-sm font-medium text-gray-700 mb-1">
-                    Message (Optional)
-                  </label>
-                  <textarea
-                    id="tour-message"
-                    value={tourMessage}
-                    onChange={(e) => setTourMessage(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Any additional details or specific interests?"
-                    rows={3}
-                    disabled={tourSubmitting}
-                  ></textarea>
-                </div>
-                <div className="flex justify-end gap-4 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setTourDialogOpen(false);
-                      setTourSubmitError(''); // Also clear error on explicit cancel
-                    }}
-                    className="px-6 py-2 border-gray-300"
-                    disabled={tourSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-2 cta-button"
-                    disabled={tourSubmitting}
-                  >
-                    {tourSubmitting ? (
-                      <div className="flex items-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Processing...
-                      </div>
-                    ) : (
-                      'Confirm Booking'
-                    )}
-                </Button>
+            {tourSubmitError && (
+              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                <p>{tourSubmitError}</p>
               </div>
-            </form>
-          </div>
+            )}
+            <form onSubmit={handleTourSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="tour-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="tour-name"
+                  value={tourName}
+                  onChange={(e) => setTourName(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="Your Full Name"
+                  disabled={tourSubmitting}
+                />
+                {tourNameError && <p className="mt-1 text-sm text-red-600">{tourNameError}</p>}
+              </div>
+              <div>
+                <label htmlFor="tour-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="tour-email"
+                  value={tourEmail}
+                  onChange={(e) => setTourEmail(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                placeholder="your@email.com"
+                  disabled={tourSubmitting}
+                />
+                {tourEmailError && <p className="mt-1 text-sm text-red-600">{tourEmailError}</p>}
+              </div>
+              <div>
+                <label htmlFor="tour-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="tour-phone"
+                  value={tourPhoneNumber}
+                  onChange={(e) => setTourPhoneNumber(e.target.value)}
+                  className={`w-full px-3 py-2 border ${tourPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="+44 123 456 7890"
+                  disabled={tourSubmitting}
+                />
+                {tourPhoneNumberError && <p className="mt-1 text-sm text-red-600">{tourPhoneNumberError}</p>}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Date
+                  </label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !tourDate && "text-muted-foreground",
+                          tourDateError && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                        disabled={tourSubmitting}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 cursor-default">
+                      <DatePicker
+                        mode="single"
+                        selected={tourDate}
+                        onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
+                          setTourDate(selectedDate);
+                          if (selectedDate) setTourDateError('');
+                        }}
+                        disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                        initialFocus
+                        className="cursor-pointer rdp-root"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {tourDateError && <p className="mt-1 text-sm text-red-600">{tourDateError}</p>}
+                </div>
+                <div>
+                  <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Time
+                  </label>
+                  {tourTimeError && <p className="mt-1 text-sm text-red-600">{tourTimeError}</p>}
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    {timeSlots.map((slot) => (
+                      <Button
+                        key={slot}
+                        type="button"
+                        variant={tourTime === slot ? "default" : "outline"}
+                        onClick={() => {
+                          setTourTime(slot);
+                          if (slot) setTourTimeError('');
+                        }}
+                        className={cn(
+                          "w-full text-xs sm:text-sm h-10", // Adjusted height and text size
+                          tourTime === slot ? "bg-primary text-white hover:bg-primary/90" : "text-gray-700 hover:bg-gray-50",
+                          tourSubmitting && "opacity-50 cursor-not-allowed"
+                        )}
+                        disabled={tourSubmitting}
+                      >
+                        {format(new Date(`1970-01-01T${slot}:00`), slot.endsWith(":00") ? "h aa" : "h:mm aa")}
+                      </Button>
+                    ))}
+                  </div>
+                  {!tourTime && !tourTimeError && <p className="mt-1 text-xs text-muted-foreground">Please select a time.</p>}
+                </div>
+              </div>
+              <div>
+                <label htmlFor="tour-message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="tour-message"
+                  value={tourMessage}
+                  onChange={(e) => setTourMessage(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Any additional details or specific interests?"
+                  rows={3}
+                  disabled={tourSubmitting}
+                ></textarea>
+              </div>
+              <div className="flex justify-end gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setTourDialogOpen(false);
+                    setTourSubmitError(''); // Also clear error on explicit cancel
+                  }}
+                  className="px-6 py-2"
+                  disabled={tourSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-primary hover:bg-primary/90 text-white px-6 py-2"
+                  disabled={tourSubmitting}
+                >
+                  {tourSubmitting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </div>
+                  ) : (
+                    'Submit Request'
+                  )}
+              </Button>
+            </div>
+          </form>
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
 
-    {/* Floating CTA Button */}
-    <div className="floating-cta">
-      <Button 
-        onClick={handleBookTour}
-        className="rounded-full bg-[#0f766e] hover:bg-[#0f766e]/90 text-white p-6 shadow-lg cta-pulse"
-        aria-label="Book a Tour"
-      >
-        <Calendar className="h-6 w-6" />
-      </Button>
-    </div>
+      {/* Get In Touch Dialog (New) */}
+      <Dialog open={getInTouchDialogOpen} onOpenChange={(open) => {
+        setGetInTouchDialogOpen(open);
+        if (!open) {
+          setGetInTouchSubmitError(''); // Clear error when dialog is closed
+          setGetInTouchSubmitSuccess(false); // Reset success state
+        }
+      }}>
+        <DialogContent className="sm:max-w-lg p-0">
+          <div className="p-6 space-y-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
+                Get in Touch
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
+                Fill in your details below, and we'll get back to you.
+              </DialogPrimitive.Description>
+            </div>
+            {getInTouchSubmitError && (
+              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                <p>{getInTouchSubmitError}</p>
+              </div>
+            )}
+            <form onSubmit={handleGetInTouchSubmit}>
+              <div className="mb-4">
+                <label htmlFor="get-in-touch-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="get-in-touch-name"
+                  value={getInTouchName}
+                  onChange={(e) => setGetInTouchName(e.target.value)}
+                  className={`w-full px-3 py-2 border ${getInTouchNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${getInTouchNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="Your Full Name"
+                  disabled={getInTouchSubmitting}
+                />
+                {getInTouchNameError && <p className="mt-1 text-sm text-red-600">{getInTouchNameError}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="get-in-touch-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="get-in-touch-email"
+                  value={getInTouchEmail}
+                  onChange={(e) => setGetInTouchEmail(e.target.value)}
+                  className={`w-full px-3 py-2 border ${getInTouchEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${getInTouchEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="your@email.com"
+                  disabled={getInTouchSubmitting}
+                />
+                {getInTouchEmailError && <p className="mt-1 text-sm text-red-600">{getInTouchEmailError}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="get-in-touch-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="get-in-touch-phone"
+                  value={getInTouchPhoneNumber}
+                  onChange={(e) => setGetInTouchPhoneNumber(e.target.value)}
+                  className={`w-full px-3 py-2 border ${getInTouchPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${getInTouchPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                  placeholder="+44 123 456 7890"
+                  disabled={getInTouchSubmitting}
+                />
+                {getInTouchPhoneNumberError && <p className="mt-1 text-sm text-red-600">{getInTouchPhoneNumberError}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="get-in-touch-message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="get-in-touch-message"
+                  value={getInTouchMessage}
+                  onChange={(e) => setGetInTouchMessage(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="How can we help you?"
+                  rows={3}
+                  disabled={getInTouchSubmitting}
+                ></textarea>
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                  onClick={() => {
+                    setGetInTouchDialogOpen(false);
+                    setGetInTouchSubmitError(''); // Also clear error on explicit cancel
+                  }}
+                  disabled={getInTouchSubmitting}
+              >
+                Cancel
+              </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-primary hover:bg-primary/90 text-white"
+                  disabled={getInTouchSubmitting}
+                >
+                  {getInTouchSubmitting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending Message...
+                    </div>
+                  ) : (
+                    'Send Message'
+                  )}
+              </Button>
+            </div>
+          </form>
+        </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
