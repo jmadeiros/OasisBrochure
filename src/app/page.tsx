@@ -113,6 +113,85 @@ const calendarStyles = `
   }
 `
 
+// Add this after the scrollbarHideStyles and calendarStyles constants
+const cta_buttonStyles = `
+  .cta-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    transform: translateY(0);
+  }
+  
+  .cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.4);
+  }
+  
+  .cta-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+  
+  .cta-button:hover::after {
+    width: 300%;
+    height: 300%;
+  }
+  
+  .cta-pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(15, 118, 110, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
+    }
+  }
+
+  .floating-cta {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 100;
+    animation: bounce 2s infinite alternate;
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .cta-ribbon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.25rem 1rem;
+    background-color: #ffd700;
+    color: #0f766e;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transform: rotate(45deg) translateX(25%) translateY(-50%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+`
+
 // Image gallery data - THIS ENTIRE ARRAY WILL BE REPLACED
 const galleryImages: GalleryImage[] = [
   // Existing Vercel-hosted images (assuming these are general or preferred overview shots)
@@ -1497,6 +1576,7 @@ export default function WorkspaceBrochure() {
     <div className="min-h-screen bg-white">
       <style jsx global>{scrollbarHideStyles}</style>
       <style jsx global>{calendarStyles}</style>
+      <style jsx global>{cta_buttonStyles}</style>
       
       {/* Additional global styles for calendar specific issues */}
       <style jsx global>{`
@@ -1903,14 +1983,14 @@ export default function WorkspaceBrochure() {
     </p>
     <div className="flex flex-wrap justify-center gap-4">
       <Button 
-        className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-6"
+        className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-6 text-lg rounded-xl shadow-lg cta-button"
         onClick={handleBookTour}
       >
-        Book a Tour <ArrowRight className="ml-2 h-4 w-4" />
+        Book a Tour <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
       <Button 
         variant="outline" 
-        className="text-gray-700 border-gray-300"
+        className="text-[#0f766e] border-[#0f766e] hover:bg-[#0f766e]/10 px-6 py-6 rounded-xl"
         onClick={scrollToContact}
       >
         Contact Us
@@ -2384,10 +2464,10 @@ export default function WorkspaceBrochure() {
         )}
 
         <Button
-          className="mt-6 bg-[#0f766e] hover:bg-[#0f766e]/90 text-white animate-in fade-in-50 delay-300 duration-500"
+          className="mt-6 bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-6 py-6 rounded-xl shadow-md animate-in fade-in-50 delay-300 duration-500 cta-button"
           onClick={handleOpenInquiryDialog}
         >
-          Inquire About This Space
+          Inquire About This Space <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </div>
@@ -2640,8 +2720,8 @@ export default function WorkspaceBrochure() {
 
         {/* Contact & Booking */}
           
-        <div id="contact-section" className="bg-[#f8fafc] p-12 rounded-lg">
-          <h2 className="text-2xl font-bold mb-12 text-center text-[#1a365d]">Get in Touch</h2>
+        <div id="contact-section" className="bg-gradient-to-br from-[#f8fafc] to-[#f0fdfa] p-12 rounded-lg shadow-sm">
+          <h2 className="text-3xl font-bold mb-12 text-center text-[#1a365d]">Get in Touch</h2>
           <div className="grid md:grid-cols-3 gap-12 mb-12">
             <div className="text-center card-hover p-6 rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-1">
               <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -2680,11 +2760,14 @@ export default function WorkspaceBrochure() {
           
           <div className="text-center">
             <Button 
-              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-3 text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
-              onClick={handleBookTour} // Changed this to call handleBookTour
+              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-10 py-7 text-xl transition-all duration-500 transform hover:-translate-y-1 hover:shadow-xl rounded-xl cta-button relative overflow-visible"
+              onClick={handleBookTour}
             >
-              Book a Tour {/* Changed text from Request Information Pack */}
+              <span className="cta-ribbon">Popular</span>
+              Book a Tour Now
+              <Calendar className="ml-3 h-6 w-6" />
             </Button>
+            <p className="mt-4 text-gray-600">Discover our unique spaces with a personalized tour</p>
           </div>
         </div>
 
@@ -2764,115 +2847,120 @@ export default function WorkspaceBrochure() {
           setInquirySubmitSuccess(false); // Reset success state
         }
       }}>
-        <DialogContent className="sm:max-w-lg p-0">
-          <div className="p-6 space-y-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="p-3 bg-primary/10 rounded-full mb-3">
-                <Mail className="h-8 w-8 text-primary" />
+        <DialogContent className="sm:max-w-lg p-0 rounded-xl overflow-hidden border-0 shadow-2xl">
+          <div className="p-0">
+            <div className="bg-[#0f766e] p-8 text-white">
+              <div className="flex flex-col items-center text-center">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                  <Mail className="h-10 w-10 text-white" />
+                </div>
+                <DialogPrimitive.Title className="text-3xl font-bold text-white">
+                  Inquire About {getCurrentContent()?.title || 'This Space'}
+                </DialogPrimitive.Title>
+                <DialogPrimitive.Description className="text-white/90 mt-2">
+                  We'd love to help you plan your event
+                </DialogPrimitive.Description>
               </div>
-              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
-                Inquire About {getCurrentContent()?.title || 'This Space'}
-          </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
-                Fill in your details below, and we'll get back to you.
-          </DialogPrimitive.Description>
             </div>
-            {inquirySubmitError && (
-              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
-                <p>{inquirySubmitError}</p>
-              </div>
-            )}
-            <form onSubmit={handleInquirySubmit}>
-            <div className="mb-4">
-                <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="inquiry-name"
-                  value={inquiryName}
-                  onChange={(e) => setInquiryName(e.target.value)}
-                  className={`w-full px-3 py-2 border ${inquiryNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="Your Full Name"
-                  disabled={inquirySubmitting}
-                />
-                {inquiryNameError && <p className="mt-1 text-sm text-red-600">{inquiryNameError}</p>}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                  id="inquiry-email"
-                  value={inquiryEmail}
-                  onChange={(e) => setInquiryEmail(e.target.value)}
-                  className={`w-full px-3 py-2 border ${inquiryEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                placeholder="your@email.com"
-                disabled={inquirySubmitting}
-              />
-                {inquiryEmailError && <p className="mt-1 text-sm text-red-600">{inquiryEmailError}</p>}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="inquiry-phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="inquiry-phone"
-                  value={inquiryPhoneNumber}
-                  onChange={(e) => setInquiryPhoneNumber(e.target.value)}
-                  className={`w-full px-3 py-2 border ${inquiryPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="+44 123 456 7890"
-                  disabled={inquirySubmitting}
-                />
-                {inquiryPhoneNumberError && <p className="mt-1 text-sm text-red-600">{inquiryPhoneNumberError}</p>}
+            
+            <div className="p-8 space-y-6">
+              {inquirySubmitError && (
+                <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                  <p>{inquirySubmitError}</p>
+                </div>
+              )}
+              <form onSubmit={handleInquirySubmit}>
+                <div className="mb-4">
+                    <label htmlFor="inquiry-name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="inquiry-name"
+                      value={inquiryName}
+                      onChange={(e) => setInquiryName(e.target.value)}
+                      className={`w-full px-3 py-2 border ${inquiryNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                      placeholder="Your Full Name"
+                      disabled={inquirySubmitting}
+                    />
+                    {inquiryNameError && <p className="mt-1 text-sm text-red-600">{inquiryNameError}</p>}
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="inquiry-email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                      id="inquiry-email"
+                      value={inquiryEmail}
+                      onChange={(e) => setInquiryEmail(e.target.value)}
+                      className={`w-full px-3 py-2 border ${inquiryEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                    placeholder="your@email.com"
+                    disabled={inquirySubmitting}
+                  />
+                    {inquiryEmailError && <p className="mt-1 text-sm text-red-600">{inquiryEmailError}</p>}
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="inquiry-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="inquiry-phone"
+                      value={inquiryPhoneNumber}
+                      onChange={(e) => setInquiryPhoneNumber(e.target.value)}
+                      className={`w-full px-3 py-2 border ${inquiryPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${inquiryPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                      placeholder="+44 123 456 7890"
+                      disabled={inquirySubmitting}
+                    />
+                    {inquiryPhoneNumberError && <p className="mt-1 text-sm text-red-600">{inquiryPhoneNumberError}</p>}
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-1">
+                      Message (Optional)
+                    </label>
+                    <textarea
+                      id="inquiry-message"
+                      value={inquiryMessage}
+                      onChange={(e) => setInquiryMessage(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Any additional details or specific interests?"
+                      rows={3}
+                      disabled={inquirySubmitting}
+                    ></textarea>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                      onClick={() => {
+                        setInquiryDialogOpen(false);
+                        setInquirySubmitError(''); // Also clear error on explicit cancel
+                      }}
+                      disabled={inquirySubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                      type="submit" 
+                      className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 cta-button"
+                      disabled={inquirySubmitting}
+                    >
+                      {inquirySubmitting ? (
+                        <div className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Submitting...
+                        </div>
+                      ) : (
+                        'Send Inquiry'
+                      )}
+                    </Button>
+                  </div>
+              </form>
             </div>
-            <div className="mb-4">
-                <label htmlFor="inquiry-message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message (Optional)
-                </label>
-                <textarea
-                  id="inquiry-message"
-                  value={inquiryMessage}
-                  onChange={(e) => setInquiryMessage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Any additional details or specific interests?"
-                  rows={3}
-                  disabled={inquirySubmitting}
-                ></textarea>
-            </div>
-            <div className="flex justify-end gap-4 mt-6">
-              <Button
-                type="button"
-                variant="outline"
-                  onClick={() => {
-                    setInquiryDialogOpen(false);
-                    setInquirySubmitError(''); // Also clear error on explicit cancel
-                  }}
-                  disabled={inquirySubmitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                  type="submit" 
-                  className="bg-primary hover:bg-primary/90 text-white"
-                  disabled={inquirySubmitting}
-                >
-                  {inquirySubmitting ? (
-                    <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Submitting...
-                    </div>
-                  ) : (
-                    'Submit Inquiry'
-                  )}
-                </Button>
-              </div>
-            </form>
           </div>
         </DialogContent>
       </Dialog>
@@ -2885,184 +2973,200 @@ export default function WorkspaceBrochure() {
           setTourSubmitSuccess(false); // Reset success state
         }
       }}>
-        <DialogContent className="sm:max-w-lg p-0">
-          <div className="p-6 space-y-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="p-3 bg-primary/10 rounded-full mb-3">
-                <Calendar className="h-8 w-8 text-primary" />
+        <DialogContent className="sm:max-w-lg p-0 rounded-xl overflow-hidden border-0 shadow-2xl">
+          <div className="p-0">
+            <div className="bg-[#0f766e] p-8 text-white">
+              <div className="flex flex-col items-center text-center">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                  <Calendar className="h-10 w-10 text-white" />
+                </div>
+                <DialogPrimitive.Title className="text-3xl font-bold text-white">
+                  Book Your Tour
+                </DialogPrimitive.Title>
+                <DialogPrimitive.Description className="text-white/90 mt-2">
+                  Experience The Village workspace in person
+                </DialogPrimitive.Description>
               </div>
-              <DialogPrimitive.Title className="text-2xl font-semibold text-foreground">
-                Book a Tour
-              </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="text-sm text-muted-foreground mt-1">
-                Enter your details below to schedule a tour.
-              </DialogPrimitive.Description>
             </div>
-            {tourSubmitError && (
-              <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
-                <p>{tourSubmitError}</p>
-              </div>
-            )}
-            <form onSubmit={handleTourSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="tour-name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="tour-name"
-                  value={tourName}
-                  onChange={(e) => setTourName(e.target.value)}
-                  className={`w-full px-3 py-2 border ${tourNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="Your Full Name"
-                  disabled={tourSubmitting}
-                />
-                {tourNameError && <p className="mt-1 text-sm text-red-600">{tourNameError}</p>}
-              </div>
-              <div>
-                <label htmlFor="tour-email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="tour-email"
-                  value={tourEmail}
-                  onChange={(e) => setTourEmail(e.target.value)}
-                  className={`w-full px-3 py-2 border ${tourEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="your@email.com"
-                  disabled={tourSubmitting}
-                />
-                {tourEmailError && <p className="mt-1 text-sm text-red-600">{tourEmailError}</p>}
-              </div>
-              <div>
-                <label htmlFor="tour-phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="tour-phone"
-                  value={tourPhoneNumber}
-                  onChange={(e) => setTourPhoneNumber(e.target.value)}
-                  className={`w-full px-3 py-2 border ${tourPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
-                  placeholder="+44 123 456 7890"
-                  disabled={tourSubmitting}
-                />
-                {tourPhoneNumberError && <p className="mt-1 text-sm text-red-600">{tourPhoneNumberError}</p>}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div className="p-8 space-y-6">
+              {tourSubmitError && (
+                <div className="my-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm text-center">
+                  <p>{tourSubmitError}</p>
+                </div>
+              )}
+              <form onSubmit={handleTourSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
-                    Preferred Date
+                  <label htmlFor="tour-name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
                   </label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !tourDate && "text-muted-foreground",
-                          tourDateError && "border-red-500 focus-visible:ring-red-500"
-                        )}
-                        disabled={tourSubmitting}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 cursor-default">
-                      <DatePicker
-                        mode="single"
-                        selected={tourDate}
-                        onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
-                          setTourDate(selectedDate);
-                          if (selectedDate) setTourDateError('');
-                        }}
-                        disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
-                        initialFocus
-                        className="cursor-pointer rdp-root"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {tourDateError && <p className="mt-1 text-sm text-red-600">{tourDateError}</p>}
+                  <input
+                    type="text"
+                    id="tour-name"
+                    value={tourName}
+                    onChange={(e) => setTourName(e.target.value)}
+                    className={`w-full px-3 py-2 border ${tourNameError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourNameError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                    placeholder="Your Full Name"
+                    disabled={tourSubmitting}
+                  />
+                  {tourNameError && <p className="mt-1 text-sm text-red-600">{tourNameError}</p>}
                 </div>
                 <div>
-                  <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1">
-                    Preferred Time
+                  <label htmlFor="tour-email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
                   </label>
-                  {tourTimeError && <p className="mt-1 text-sm text-red-600">{tourTimeError}</p>}
-                  <div className="grid grid-cols-3 gap-2 mt-1">
-                    {timeSlots.map((slot) => (
-                      <Button
-                        key={slot}
-                        type="button"
-                        variant={tourTime === slot ? "default" : "outline"}
-                        onClick={() => {
-                          setTourTime(slot);
-                          if (slot) setTourTimeError('');
-                        }}
-                        className={cn(
-                          "w-full text-xs sm:text-sm h-10", // Adjusted height and text size
-                          tourTime === slot ? "bg-primary text-white hover:bg-primary/90" : "text-gray-700 hover:bg-gray-50",
-                          tourSubmitting && "opacity-50 cursor-not-allowed"
-                        )}
-                        disabled={tourSubmitting}
-                      >
-                        {format(new Date(`1970-01-01T${slot}:00`), slot.endsWith(":00") ? "h aa" : "h:mm aa")}
-                      </Button>
-                    ))}
+                  <input
+                    type="email"
+                    id="tour-email"
+                    value={tourEmail}
+                    onChange={(e) => setTourEmail(e.target.value)}
+                    className={`w-full px-3 py-2 border ${tourEmailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourEmailError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                    placeholder="your@email.com"
+                    disabled={tourSubmitting}
+                  />
+                  {tourEmailError && <p className="mt-1 text-sm text-red-600">{tourEmailError}</p>}
+                </div>
+                <div>
+                  <label htmlFor="tour-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="tour-phone"
+                    value={tourPhoneNumber}
+                    onChange={(e) => setTourPhoneNumber(e.target.value)}
+                    className={`w-full px-3 py-2 border ${tourPhoneNumberError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 ${tourPhoneNumberError ? 'focus:ring-red-500' : 'focus:ring-primary'}`}
+                    placeholder="+44 123 456 7890"
+                    disabled={tourSubmitting}
+                  />
+                  {tourPhoneNumberError && <p className="mt-1 text-sm text-red-600">{tourPhoneNumberError}</p>}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
+                      Preferred Date
+                    </label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !tourDate && "text-muted-foreground",
+                            tourDateError && "border-red-500 focus-visible:ring-red-500"
+                          )}
+                          disabled={tourSubmitting}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 cursor-default">
+                        <DatePicker
+                          mode="single"
+                          selected={tourDate}
+                          onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
+                            setTourDate(selectedDate);
+                            if (selectedDate) setTourDateError('');
+                          }}
+                          disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                          initialFocus
+                          className="cursor-pointer rdp-root"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {tourDateError && <p className="mt-1 text-sm text-red-600">{tourDateError}</p>}
                   </div>
-                  {!tourTime && !tourTimeError && <p className="mt-1 text-xs text-muted-foreground">Please select a time.</p>}
-                </div>
-              </div>
-              <div>
-                <label htmlFor="tour-message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message (Optional)
-                </label>
-                <textarea
-                  id="tour-message"
-                  value={tourMessage}
-                  onChange={(e) => setTourMessage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Any additional details or specific interests?"
-                  rows={3}
-                  disabled={tourSubmitting}
-                ></textarea>
-              </div>
-              <div className="flex justify-end gap-4 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setTourDialogOpen(false);
-                    setTourSubmitError(''); // Also clear error on explicit cancel
-                  }}
-                  className="px-6 py-2"
-                  disabled={tourSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-primary hover:bg-primary/90 text-white px-6 py-2"
-                  disabled={tourSubmitting}
-                >
-                  {tourSubmitting ? (
-                    <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing...
+                  <div>
+                    <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1">
+                      Preferred Time
+                    </label>
+                    {tourTimeError && <p className="mt-1 text-sm text-red-600">{tourTimeError}</p>}
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      {timeSlots.map((slot) => (
+                        <Button
+                          key={slot}
+                          type="button"
+                          variant={tourTime === slot ? "default" : "outline"}
+                          onClick={() => {
+                            setTourTime(slot);
+                            if (slot) setTourTimeError('');
+                          }}
+                          className={cn(
+                            "w-full text-xs sm:text-sm h-10", // Adjusted height and text size
+                            tourTime === slot ? "bg-primary text-white hover:bg-primary/90" : "text-gray-700 hover:bg-gray-50",
+                            tourSubmitting && "opacity-50 cursor-not-allowed"
+                          )}
+                          disabled={tourSubmitting}
+                        >
+                          {format(new Date(`1970-01-01T${slot}:00`), slot.endsWith(":00") ? "h aa" : "h:mm aa")}
+                        </Button>
+                      ))}
                     </div>
-                  ) : (
-                    'Submit Request'
-                  )}
-              </Button>
-            </div>
-          </form>
+                    {!tourTime && !tourTimeError && <p className="mt-1 text-xs text-muted-foreground">Please select a time.</p>}
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="tour-message" className="block text-sm font-medium text-gray-700 mb-1">
+                    Message (Optional)
+                  </label>
+                  <textarea
+                    id="tour-message"
+                    value={tourMessage}
+                    onChange={(e) => setTourMessage(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Any additional details or specific interests?"
+                    rows={3}
+                    disabled={tourSubmitting}
+                  ></textarea>
+                </div>
+                <div className="flex justify-end gap-4 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setTourDialogOpen(false);
+                      setTourSubmitError(''); // Also clear error on explicit cancel
+                    }}
+                    className="px-6 py-2 border-gray-300"
+                    disabled={tourSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-8 py-2 cta-button"
+                    disabled={tourSubmitting}
+                  >
+                    {tourSubmitting ? (
+                      <div className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </div>
+                    ) : (
+                      'Confirm Booking'
+                    )}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-        </DialogContent>
-      </Dialog>
+      </DialogContent>
+    </Dialog>
+
+    {/* Floating CTA Button */}
+    <div className="floating-cta">
+      <Button 
+        onClick={handleBookTour}
+        className="rounded-full bg-[#0f766e] hover:bg-[#0f766e]/90 text-white p-6 shadow-lg cta-pulse"
+        aria-label="Book a Tour"
+      >
+        <Calendar className="h-6 w-6" />
+      </Button>
+    </div>
     </div>
   );
 }
