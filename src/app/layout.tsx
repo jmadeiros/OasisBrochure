@@ -3,6 +3,7 @@ import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Inter } from "next/font/google"
 import FirebaseAnalyticsClient from '@/components/FirebaseAnalyticsClient';
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
         <FirebaseAnalyticsClient />
       </body>
