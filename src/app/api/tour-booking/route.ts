@@ -3,32 +3,56 @@ import nodemailer from 'nodemailer';
 import ical, { ICalAttendeeRole } from 'ical-generator';
 
 // Log the environment variable at the module scope to check if it's loaded
-console.log('GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
-console.log('GMAIL_APP_PASSWORD value (first 2 chars):', process.env.GMAIL_APP_PASSWORD?.substring(0,2));
+// console.log('GMAIL_APP_PASSWORD loaded:', !!process.env.GMAIL_APP_PASSWORD);
+// console.log('GMAIL_APP_PASSWORD value (first 2 chars):', process.env.GMAIL_APP_PASSWORD?.substring(0,2));
 
 // Configure email transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'thevillagestmartins@gmail.com',
-    // Never use a regular password in Gmail SMTP - it will fail with modern security settings
-    // You must use an App Password after enabling 2FA
-    pass: process.env.GMAIL_APP_PASSWORD!, // Will use environment variable
-  },
-  secure: true,
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'thevillagestmartins@gmail.com',
+//     // Never use a regular password in Gmail SMTP - it will fail with modern security settings
+//     // You must use an App Password after enabling 2FA
+//     pass: process.env.GMAIL_APP_PASSWORD!, // Will use environment variable
+//   },
+//   secure: true,
+// });
 
 // For development testing, log auth status
-transporter.verify(function(error, success) {
-  if (error) {
-    console.log('SMTP server connection error:', error);
-  } else {
-    console.log('SMTP server connection verified and ready');
-  }
-});
+// transporter.verify(function(error, success) {
+//   if (error) {
+//     console.log('SMTP server connection error:', error);
+//   } else {
+//     console.log('SMTP server connection verified and ready');
+//   }
+// });
 
 export async function POST(request: NextRequest) {
   try {
+    // Moved transporter initialization inside the POST handler
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'thevillagestmartins@gmail.com',
+        pass: process.env.GMAIL_APP_PASSWORD!,
+      },
+      secure: true,
+    });
+
+    // Optional: verify connection just before sending, if needed for debugging,
+    // but typically not required for every request in production.
+    // await new Promise((resolve, reject) => {
+    //   transporter.verify((error, success) => {
+    //     if (error) {
+    //       console.log('SMTP server connection error (runtime):', error);
+    //       reject(error);
+    //     } else {
+    //       console.log('SMTP server connection verified and ready (runtime)');
+    //       resolve(success);
+    //     }
+    //   });
+    // });
+    
     // Parse JSON body
     const data = await request.json();
     const { tourName, tourEmail, tourPhoneNumber, tourDate, tourTime, tourMessage } = data;

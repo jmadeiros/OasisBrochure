@@ -3,26 +3,35 @@ import nodemailer from 'nodemailer';
 
 // Configure email transporter (using the same one as tour-booking for consistency)
 // Ensure GMAIL_APP_PASSWORD is set in your environment variables
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'thevillagestmartins@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD!, // Crucial: Use the App Password from env
-  },
-  secure: true,
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'thevillagestmartins@gmail.com',
+//     pass: process.env.GMAIL_APP_PASSWORD!, // Crucial: Use the App Password from env
+//   },
+//   secure: true,
+// });
 
 // Verify transporter connection (optional, good for debugging)
-transporter.verify(function(error, success) {
-  if (error) {
-    console.log('[INQUIRY API] SMTP server connection error:', error);
-  } else {
-    console.log('[INQUIRY API] SMTP server connection verified and ready');
-  }
-});
+// transporter.verify(function(error, success) {
+//   if (error) {
+//     console.log('[INQUIRY API] SMTP server connection error:', error);
+//   } else {
+//     console.log('[INQUIRY API] SMTP server connection verified and ready');
+//   }
+// });
 
 export async function POST(request: NextRequest) {
   try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'thevillagestmartins@gmail.com',
+        pass: process.env.GMAIL_APP_PASSWORD!,
+      },
+      secure: true,
+    });
+
     const data = await request.json();
     const { inquiryName, inquiryEmail, inquiryPhoneNumber, inquiryMessage, spaceTitle } = data;
 
