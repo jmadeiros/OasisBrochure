@@ -33,3 +33,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large files
+.firebase/oasisvillagestmartins/functions/node_modules/@next/swc-win32-x64-msvc/next-swc.win32-x64-msvc.node
