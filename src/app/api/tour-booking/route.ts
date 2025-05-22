@@ -30,6 +30,11 @@ import ical, { ICalAttendeeRole } from 'ical-generator';
 export async function POST(request: NextRequest) {
   try {
     // Moved transporter initialization inside the POST handler
+
+    console.log('GMAIL_APP_PASSWORD in function (runtime):', process.env.GMAIL_APP_PASSWORD);
+    console.log('Is GMAIL_APP_PASSWORD a string?', typeof process.env.GMAIL_APP_PASSWORD === 'string');
+    console.log('GMAIL_APP_PASSWORD length:', process.env.GMAIL_APP_PASSWORD?.length);
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
