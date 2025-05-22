@@ -1,0 +1,43 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-d84a6c94d5d91a1f.js",
+      "static/chunks/4bd1b696-8667e8750f5410bb.js",
+      "static/chunks/684-03a01e025e609b3e.js",
+      "static/chunks/main-app-361b3765973510d0.js",
+      "static/chunks/app/_not-found/page-743f83a4794fe1eb.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-d84a6c94d5d91a1f.js",
+      "static/chunks/4bd1b696-8667e8750f5410bb.js",
+      "static/chunks/684-03a01e025e609b3e.js",
+      "static/chunks/main-app-361b3765973510d0.js",
+      "static/css/95b8a0de99f49d57.css",
+      "static/chunks/671-992ed7dc896d40b8.js",
+      "static/chunks/app/layout-ba8206ee97d4c1c5.js"
+    ],
+    "/api/tour-booking/route": [
+      "static/chunks/webpack-d84a6c94d5d91a1f.js",
+      "static/chunks/4bd1b696-8667e8750f5410bb.js",
+      "static/chunks/684-03a01e025e609b3e.js",
+      "static/chunks/main-app-361b3765973510d0.js",
+      "static/chunks/app/api/tour-booking/route-c8f7817ae8f9ba28.js"
+    ],
+    "/api/inquiry/route": [
+      "static/chunks/webpack-d84a6c94d5d91a1f.js",
+      "static/chunks/4bd1b696-8667e8750f5410bb.js",
+      "static/chunks/684-03a01e025e609b3e.js",
+      "static/chunks/main-app-361b3765973510d0.js",
+      "static/chunks/app/api/inquiry/route-1ac913bec9b5b3b5.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-d84a6c94d5d91a1f.js",
+      "static/chunks/4bd1b696-8667e8750f5410bb.js",
+      "static/chunks/684-03a01e025e609b3e.js",
+      "static/chunks/main-app-361b3765973510d0.js",
+      "static/chunks/671-992ed7dc896d40b8.js",
+      "static/chunks/502-daaa7b8dece57ac6.js",
+      "static/chunks/app/page-b9ce2585531f74a0.js"
+    ]
+  }
+}

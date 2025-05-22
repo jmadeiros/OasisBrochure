@@ -1,0 +1,113 @@
+[debug] [2025-05-22T08:19:27.351Z] ----------------------------------------------------------------------
+[debug] [2025-05-22T08:19:27.354Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\madei\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2025-05-22T08:19:27.354Z] CLI Version:   14.4.0
+[debug] [2025-05-22T08:19:27.355Z] Platform:      win32
+[debug] [2025-05-22T08:19:27.355Z] Node Version:  v20.18.3
+[debug] [2025-05-22T08:19:27.355Z] Time:          Thu May 22 2025 09:19:27 GMT+0100 (British Summer Time)
+[debug] [2025-05-22T08:19:27.355Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-22T08:19:27.550Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-22T08:19:27.550Z] > authorizing via signed-in user (joshmadeiros8@gmail.com)
+[debug] [2025-05-22T08:19:27.550Z] [iam] checking project oasisvillagestmartins for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-05-22T08:19:27.551Z] Checked if tokens are valid: false, expires at: 1747871641998
+[debug] [2025-05-22T08:19:27.551Z] Checked if tokens are valid: false, expires at: 1747871641998
+[debug] [2025-05-22T08:19:27.552Z] > refreshing access token with scopes: []
+[debug] [2025-05-22T08:19:27.554Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-22T08:19:27.554Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-22T08:19:27.702Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-22T08:19:27.702Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-22T08:19:27.709Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions [none]
+[debug] [2025-05-22T08:19:27.709Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions x-goog-quota-user=projects/oasisvillagestmartins
+[debug] [2025-05-22T08:19:27.709Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-22T08:19:28.318Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions 200
+[debug] [2025-05-22T08:19:28.318Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-22T08:19:28.319Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:28.319Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:28.319Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins [none]
+[debug] [2025-05-22T08:19:28.710Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins 200
+[debug] [2025-05-22T08:19:28.710Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins {"projectId":"oasisvillagestmartins","projectNumber":"654151338648","displayName":"oasisvillagestmartins","name":"projects/oasisvillagestmartins","resources":{"hostingSite":"oasisvillagestmartins"},"state":"ACTIVE","etag":"1_9958008b-d2da-4907-90fe-481226482fe7"}
+[debug] [2025-05-22T08:19:31.190Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:31.190Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:31.192Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites pageToken=&pageSize=10
+[debug] [2025-05-22T08:19:32.353Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites 200
+[debug] [2025-05-22T08:19:32.353Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites {"sites":[{"name":"projects/oasisvillagestmartins/sites/oasisvillagestmartins","defaultUrl":"https://oasisvillagestmartins.web.app","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","type":"DEFAULT_SITE"}]}
+[debug] [2025-05-22T08:19:32.353Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:32.353Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:32.353Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config [none]
+[debug] [2025-05-22T08:19:33.269Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config 200
+[debug] [2025-05-22T08:19:33.269Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config {"projectId":"oasisvillagestmartins","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","storageBucket":"oasisvillagestmartins.firebasestorage.app","apiKey":"AIzaSyChTkr0nTW5k5BzfNfMDckcYEMjmJ-UE8M","authDomain":"oasisvillagestmartins.firebaseapp.com","messagingSenderId":"654151338648","measurementId":"G-TBFL4YH0LY"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 15.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-05-22T08:19:38.104Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:38.105Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:19:38.105Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins [none]
+[debug] [2025-05-22T08:19:39.093Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins 200
+[debug] [2025-05-22T08:19:39.094Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins {"name":"projects/oasisvillagestmartins/sites/oasisvillagestmartins","defaultUrl":"https://oasisvillagestmartins.web.app","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 15.3.2
+
+[info]    - Environments: .env.local
+
+
+[debug] [2025-05-22T08:22:04.920Z] ----------------------------------------------------------------------
+[debug] [2025-05-22T08:22:04.923Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\madei\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js --debug deploy --only hosting
+[debug] [2025-05-22T08:22:04.923Z] CLI Version:   14.4.0
+[debug] [2025-05-22T08:22:04.924Z] Platform:      win32
+[debug] [2025-05-22T08:22:04.924Z] Node Version:  v20.18.3
+[debug] [2025-05-22T08:22:04.924Z] Time:          Thu May 22 2025 09:22:04 GMT+0100 (British Summer Time)
+[debug] [2025-05-22T08:22:04.925Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-22T08:22:05.118Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-22T08:22:05.119Z] > authorizing via signed-in user (joshmadeiros8@gmail.com)
+[debug] [2025-05-22T08:22:05.120Z] [iam] checking project oasisvillagestmartins for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-05-22T08:22:05.121Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:05.121Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:05.122Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions [none]
+[debug] [2025-05-22T08:22:05.123Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions x-goog-quota-user=projects/oasisvillagestmartins
+[debug] [2025-05-22T08:22:05.123Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-22T08:22:05.790Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions 200
+[debug] [2025-05-22T08:22:05.791Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oasisvillagestmartins:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-05-22T08:22:05.792Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:05.793Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:05.793Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins [none]
+[debug] [2025-05-22T08:22:06.210Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins 200
+[debug] [2025-05-22T08:22:06.210Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/oasisvillagestmartins {"projectId":"oasisvillagestmartins","projectNumber":"654151338648","displayName":"oasisvillagestmartins","name":"projects/oasisvillagestmartins","resources":{"hostingSite":"oasisvillagestmartins"},"state":"ACTIVE","etag":"1_9958008b-d2da-4907-90fe-481226482fe7"}
+[debug] [2025-05-22T08:22:08.549Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:08.550Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:08.553Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites pageToken=&pageSize=10
+[debug] [2025-05-22T08:22:09.596Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites 200
+[debug] [2025-05-22T08:22:09.597Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites {"sites":[{"name":"projects/oasisvillagestmartins/sites/oasisvillagestmartins","defaultUrl":"https://oasisvillagestmartins.web.app","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","type":"DEFAULT_SITE"}]}
+[debug] [2025-05-22T08:22:09.598Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:09.598Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:09.599Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config [none]
+[debug] [2025-05-22T08:22:10.269Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config 200
+[debug] [2025-05-22T08:22:10.270Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:654151338648:web:09d15962b8d7959d4b5eed/config {"projectId":"oasisvillagestmartins","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","storageBucket":"oasisvillagestmartins.firebasestorage.app","apiKey":"AIzaSyChTkr0nTW5k5BzfNfMDckcYEMjmJ-UE8M","authDomain":"oasisvillagestmartins.firebaseapp.com","messagingSenderId":"654151338648","measurementId":"G-TBFL4YH0LY"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 15.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-05-22T08:22:15.049Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:15.049Z] Checked if tokens are valid: true, expires at: 1747905566702
+[debug] [2025-05-22T08:22:15.050Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins [none]
+[debug] [2025-05-22T08:22:15.971Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins 200
+[debug] [2025-05-22T08:22:15.972Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/oasisvillagestmartins/sites/oasisvillagestmartins {"name":"projects/oasisvillagestmartins/sites/oasisvillagestmartins","defaultUrl":"https://oasisvillagestmartins.web.app","appId":"1:654151338648:web:09d15962b8d7959d4b5eed","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 15.3.2
+
+[info]    - Environments: .env.local
+
+

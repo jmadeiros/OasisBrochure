@@ -858,6 +858,7 @@ export default function WorkspaceBrochure() {
   const [tourSubmitting, setTourSubmitting] = useState<boolean>(false);
   const [tourSubmitSuccess, setTourSubmitSuccess] = useState<boolean>(false);
   const [tourSubmitError, setTourSubmitError] = useState<string>(''); // New state for submission error
+  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false); // State for Popover
 
   // State for Get In Touch Dialog (New)
   const [getInTouchDialogOpen, setGetInTouchDialogOpen] = useState<boolean>(false);
@@ -1668,8 +1669,9 @@ export default function WorkspaceBrochure() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Global Styles */}
       <style jsx global>{scrollbarHideStyles}</style>
-      <style jsx global>{calendarStyles}</style>
+      {/* <style jsx global>{calendarStyles}</style> */} {/* Also comment out here if it was applied twice */}
       
       {/* Additional global styles for calendar specific issues */}
       <style jsx global>{`
@@ -1690,6 +1692,37 @@ export default function WorkspaceBrochure() {
         .rdp-cell:not(.rdp-day_outside):not(.rdp-day_disabled) {
           cursor: pointer !important;
         }
+
+        /* === REVISED STYLES START === */
+        /* Target disabled day buttons */
+        button[disabled].rdp-day_button {
+          color: #9ca3af !important; /* Tailwind gray-400 */
+          opacity: 0.5 !important;
+          cursor: not-allowed !important;
+          /* Add any other desired styling for disabled look */
+        }
+
+        /* Target calendar header cells (day names) */
+        th.rdp-weekday {
+          display: inline-block !important; /* Force display type */
+          width: calc(100% / 7 - 1px) !important; /* Explicit width, account for potential borders/spacing if any */
+          text-align: center !important;
+          font-weight: normal !important; 
+          font-size: 0.8rem !important; 
+          color: #374151 !important; /* Changed to Tailwind gray-700 for darker text */
+          padding: 0.25rem 0 !important; /* Adjusted padding */
+          box-sizing: border-box !important;
+        }
+
+        /* Target calendar day cells (td) for width */
+        td.rdp-cell {
+          display: inline-block !important; /* Match header cell display for consistency */
+          width: calc(100% / 7 - 1px) !important; /* Match header cell width */
+          text-align: center !important; /* Ensure content within is centered */
+          padding: 0 !important; /* Override default padding if any */
+          box-sizing: border-box !important;
+        }
+        /* === REVISED STYLES END === */
       `}</style>
       
       {/* Header */}
@@ -3453,7 +3486,7 @@ export default function WorkspaceBrochure() {
                   <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1">
                     Preferred Date
                   </label>
-                  <Popover>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={"outline"}
@@ -3463,22 +3496,25 @@ export default function WorkspaceBrochure() {
                           tourDateError && "border-red-500 focus-visible:ring-red-500"
                         )}
                         disabled={tourSubmitting}
+                        onClick={() => setIsCalendarOpen(true)}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {tourDate && isValidDate(tourDate) ? format(tourDate, "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 cursor-default">
+                    <PopoverContent className="w-auto p-0">
                       <DatePicker
                         mode="single"
                         selected={tourDate}
-                        onSelect={(selectedDate: Date | undefined) => { // Correctly type onSelect
+                        onSelect={(selectedDate: Date | undefined) => {
                           setTourDate(selectedDate);
-                          if (selectedDate) setTourDateError('');
+                          if (selectedDate) {
+                            setTourDateError('');
+                            setIsCalendarOpen(false); // Close calendar on date select
+                          }
                         }}
                         disabled={(date: Date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
                         initialFocus
-                        className="cursor-pointer rdp-root"
                       />
                     </PopoverContent>
                   </Popover>

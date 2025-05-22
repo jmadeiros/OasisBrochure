@@ -1,0 +1,21 @@
+{
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
+    "id": 472,
+    "files": [
+      "static/chunks/472.a3826d29d6854395.js"
+    ]
+  },
+  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
+    "id": 9341,
+    "files": [
+      "static/chunks/341.df3329d77a5faa19.js"
+    ]
+  },
+  "components\\FirebaseAnalyticsClient.tsx -> @/components/FirebaseAnalytics": {
+    "id": 9249,
+    "files": [
+      "static/chunks/934.316c6cba6ac36503.js",
+      "static/chunks/249.9189ac12f28c801c.js"
+    ]
+  }
+}

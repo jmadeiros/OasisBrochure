@@ -1,0 +1,7 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/tour-booking/route": "app/api/tour-booking/route.js",
+  "/api/inquiry/route": "app/api/inquiry/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}
