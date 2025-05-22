@@ -148,7 +148,7 @@ thevillagestmartins@gmail.com`,
   <style>
     body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; }
     .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .header { background-color: #0f766e; /* Teal */ color: #ffffff; padding: 30px 20px; text-align: center; }
+    .header { background-color: #F1F5F9; /* Changed to Slate-100 */ color: #1a365d; /* Changed h1 color to Deep Navy */ padding: 30px 20px; text-align: center; }
     .header img { max-width: 180px; margin-bottom: 10px; }
     .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
     .content { padding: 25px 30px; }
@@ -165,7 +165,7 @@ thevillagestmartins@gmail.com`,
 <body>
   <div class="email-container">
     <div class="header">
-      <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/oasis-st-martins-village-logo.png-068f1365cd3418f6769d76529815412a.png" alt="The Village Workspace Logo">
+      <div style="font-size: 26px; color: #1a365d; margin-bottom: 10px; font-weight: 300;">The <strong style="font-weight: bold; color: #1a365d;">Village</strong></div>
       <h1>Your Village Tour is Booked!</h1>
     </div>
     <div class="content">
@@ -182,6 +182,9 @@ thevillagestmartins@gmail.com`,
         <p style="margin-bottom:10px; font-size: 16px;"><strong>🗓️ Add this to your calendar:</strong></p>
         <p style="font-size:14px; color:#555;">An invitation (.ics file) is attached. Open it to add the tour to your preferred calendar (Google, Apple, Outlook, etc.).</p>
       </div>
+      <p style="text-align:center; margin-top: 25px;">
+        <a href="https://www.thevillagebyoasis.com" style="background-color: #1a365d; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">Visit Our Main Website</a>
+      </p>
       <p>Best regards,<br>
       The Village Team<br>
       </p>

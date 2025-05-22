@@ -47,15 +47,7 @@ export async function POST(request: NextRequest) {
       from: '"Website Inquiry" <thevillagestmartins@gmail.com>',
       to: 'thevillagestmartins@gmail.com', // Your admin email
       subject: `New Inquiry: ${inquiryName} - Regarding ${spaceTitle || 'General Inquiry'}`,
-      text: `You have received a new inquiry:
-
-Name: ${inquiryName}
-Email: ${inquiryEmail}
-Phone: ${inquiryPhoneNumber}
-Regarding Space: ${spaceTitle || 'N/A'}
-
-Message:
-${inquiryMessage || 'No additional message provided.'}`,
+      text: `You have received a new inquiry:\\n\\nName: ${inquiryName}\\nEmail: ${inquiryEmail}\\nPhone: ${inquiryPhoneNumber}\\nRegarding Space: ${spaceTitle || 'N/A'}\\n\\nMessage:\\n${inquiryMessage || 'No additional message provided.'}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -64,26 +56,25 @@ ${inquiryMessage || 'No additional message provided.'}`,
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>New Space Inquiry</title>
           <style>
-            body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; }
-            .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-            .header { background-color: #1a365d; /* Deep Navy */ color: #ffffff; padding: 30px 20px; text-align: center; }
-            .header img { max-width: 180px; margin-bottom: 10px; }
-            .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
-            .content { padding: 25px 30px; }
-            .content p { margin-bottom: 15px; font-size: 16px; }
-            .details-box { background-color: #f9f9f9; padding: 20px; margin: 25px 0; border-left: 5px solid #1a365d; border-radius: 0 5px 5px 0; }
-            .details-box h3 { margin-top: 0; color: #1a365d; font-size: 18px; }
-            .details-box p { margin: 8px 0; }
-            .message-box { margin-top: 20px; padding: 15px; border: 1px solid #eeeeee; border-radius: 5px; background-color: #ffffff; }
-            .footer { background-color: #e9ecef; padding: 20px; text-align: center; font-size: 12px; color: #666666; }
-            .footer a { color: #1a365d; text-decoration: none; }
-            strong { color: #000000; }
+    body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; }
+    .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .header { background-color: #F1F5F9; /* Changed to Slate-100 */ color: #1a365d; /* Changed h1 color to Deep Navy */ padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
+    .content { padding: 25px 30px; }
+    .content p { margin-bottom: 15px; font-size: 16px; }
+    .details-box { background-color: #f9f9f9; padding: 20px; margin: 25px 0; border-left: 5px solid #0f766e; border-radius: 0 5px 5px 0; }
+    .details-box h3 { margin-top: 0; color: #0f766e; font-size: 18px; }
+    .details-box p { margin: 8px 0; } /* Specific to admin inquiry */
+    .message-box { margin-top: 20px; padding: 15px; border: 1px solid #eeeeee; border-radius: 5px; background-color: #ffffff; } /* Specific to admin inquiry */
+    .footer { background-color: #e9ecef; padding: 20px; text-align: center; font-size: 12px; color: #666666; }
+    .footer a { color: #0f766e; text-decoration: none; }
+    strong { color: #000000; }
           </style>
         </head>
         <body>
           <div class="email-container">
             <div class="header">
-              <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/oasis-st-martins-village-logo.png-068f1365cd3418f6769d76529815412a.png" alt="The Village Workspace Logo">
+              <div style="font-size: 26px; color: #1a365d; margin-bottom: 10px; font-weight: 300;">The <strong style="font-weight: bold; color: #1a365d;">Village</strong></div>
               <h1>New Space Inquiry</h1>
             </div>
             <div class="content">
@@ -114,22 +105,7 @@ ${inquiryMessage || 'No additional message provided.'}`,
       from: '"The Village Workspace" <thevillagestmartins@gmail.com>',
       to: inquiryEmail,
       subject: `Thank you for your inquiry, ${inquiryName}!`,
-      text: `Dear ${inquiryName},
-
-Thank you for your inquiry about ${spaceTitle || 'our spaces'} at The Village Workspace.
-
-We have received your details:
-Email: ${inquiryEmail}
-Phone: ${inquiryPhoneNumber}
-${inquiryMessage ? `Your Message: ${inquiryMessage}` : ''}
-
-Our team will review your inquiry and get back to you as soon as possible.
-
-Best regards,
-The Village Team
-155 Tulse Hill, London SW2 3UP
-+447975708289
-thevillagestmartins@gmail.com`,
+      text: `Dear ${inquiryName},\\n\\nThank you for your inquiry about ${spaceTitle || 'our spaces'} at The Village Workspace.\\n\\nWe have received your details:\\nEmail: ${inquiryEmail}\\nPhone: ${inquiryPhoneNumber}\\n${inquiryMessage ? `Your Message: ${inquiryMessage}` : ''}\\n\\nOur team will review your inquiry and get back to you as soon as possible.\\n\\nBest regards,\\nThe Village Team\\n155 Tulse Hill, London SW2 3UP\\n+447975708289\\nthevillagestmartins@gmail.com`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -138,23 +114,24 @@ thevillagestmartins@gmail.com`,
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Inquiry Confirmation</title>
           <style>
-            body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; }
-            .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-            .header { background-color: #0f766e; /* Teal */ color: #ffffff; padding: 30px 20px; text-align: center; }
-            .header img { max-width: 180px; margin-bottom: 10px; }
-            .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
-            .content { padding: 25px 30px; }
-            .content p { margin-bottom: 15px; font-size: 16px; }
-            .cta-button { background-color: #1a365d; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block; margin-top:15px; }
-            .footer { background-color: #e9ecef; padding: 20px; text-align: center; font-size: 12px; color: #666666; }
-            .footer a { color: #0f766e; text-decoration: none; }
-            strong { color: #000000; }
+    body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; }
+    .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .header { background-color: #F1F5F9; /* Changed to Slate-100 */ color: #1a365d; /* Changed h1 color to Deep Navy */ padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
+    .content { padding: 25px 30px; }
+    .content p { margin-bottom: 15px; font-size: 16px; }
+    .details-box { background-color: #f9f9f9; padding: 20px; margin: 25px 0; border-left: 5px solid #0f766e; border-radius: 0 5px 5px 0; } /* Copied from tour booking */
+    .details-box h3 { margin-top: 0; color: #0f766e; font-size: 18px; } /* Copied from tour booking */
+    .cta-button { background-color: #1a365d; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block; margin-top:15px; } /* Specific to user inquiry */
+    .footer { background-color: #e9ecef; padding: 20px; text-align: center; font-size: 12px; color: #666666; }
+    .footer a { color: #0f766e; text-decoration: none; }
+    strong { color: #000000; }
           </style>
         </head>
         <body>
           <div class="email-container">
             <div class="header">
-              <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/oasis-st-martins-village-logo.png-068f1365cd3418f6769d76529815412a.png" alt="The Village Workspace Logo">
+              <div style="font-size: 26px; color: #1a365d; margin-bottom: 10px; font-weight: 300;">The <strong style="font-weight: bold; color: #1a365d;">Village</strong></div>
               <h1>Thank You For Your Inquiry!</h1>
             </div>
             <div class="content">
@@ -167,8 +144,8 @@ thevillagestmartins@gmail.com`,
                 ${inquiryMessage ? `<li>Your Message: ${inquiryMessage}</li>` : ''}
               </ul>
               <p>If your matter is urgent, or if you'd like to speak to someone sooner, please don't hesitate to call us at +447975708289.</p>
-              <p style="text-align:center;">
-                <a href="https://www.thevillagebyoasis.com" class="cta-button">Visit Our Website</a> (Assuming you have a website)
+              <p style="text-align:center; margin-top: 25px;">
+                <a href="https://www.thevillagebyoasis.com" style="background-color: #1a365d; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">Visit Our Main Website</a>
               </p>
               <p>Best regards,<br>
               The Village Team</p>

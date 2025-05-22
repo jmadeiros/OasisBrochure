@@ -932,11 +932,11 @@ export default function WorkspaceBrochure() {
         }
       } else {
         // Desktop: Original logic
-        if (!panelAutoShown && scrollY > 50 && scrollY < 300 && !aboutExpanded) {
+        if (!panelAutoShown && scrollY > 275 && scrollY < 525 && !aboutExpanded) { // Changed to 275 and 525
           setAboutExpanded(true);
           setPanelAutoShown(true);
         }
-        if (panelAutoShown && aboutExpanded && scrollY > 350) {
+        if (panelAutoShown && aboutExpanded && scrollY > 650) { 
           setAboutExpanded(false);
         }
       }
@@ -1746,13 +1746,19 @@ export default function WorkspaceBrochure() {
             >
               Get in Touch
             </Button>
-            <Button
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-white font-medium rounded-md shadow-sm hover:shadow-md transform hover:-translate-y-px transition-all duration-200 sm:px-3 sm:py-1.5 px-2 py-1 text-xs sm:text-sm"
-              onClick={handleBookTour}
-            >
-              <span className="hidden sm:inline">Book a Tour </span><ArrowRight className="ml-1 sm:ml-1.5 h-4 w-4" />
-            </Button>
+            <div>
+              <Button
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-white font-medium rounded-md shadow-sm hover:shadow-md transform hover:-translate-y-px transition-all duration-200 sm:px-3 sm:py-1.5 px-2 py-1 text-xs sm:text-sm"
+                onClick={handleBookTour}
+              >
+                <span className="hidden sm:inline">Book a Tour </span>
+                {isMobile ? 
+                  <CalendarIcon className="h-4 w-4" /> : 
+                  <ArrowRight className="ml-1.5 h-4 w-4" />
+                }
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -1778,24 +1784,6 @@ export default function WorkspaceBrochure() {
             <span className="mx-1 text-gray-300">|</span>
             <span className="font-medium text-[#1a365d]">Tulse Hill, London SW2 3UP</span>
           </div>
-          <div className="flex items-center gap-3 mt-2 sm:mt-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-md flex items-center gap-2 text-[#1a365d] hover:text-primary hover:bg-accent"
-            >
-              <Share className="h-4 w-4" />
-              <span className="font-medium">Share</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-md flex items-center gap-2 text-[#1a365d] hover:text-primary hover:bg-accent"
-            >
-              <Mail className="h-4 w-4" />
-              <span className="font-medium">Email</span>
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -1810,7 +1798,7 @@ export default function WorkspaceBrochure() {
                 isMobile ? 
                   `w-[90vw] left-1/2 h-auto ${aboutExpanded ? 'opacity-100 -translate-x-1/2 translate-y-0' : 'opacity-0 -translate-x-1/2 translate-y-[100vh] pointer-events-none'}` // Removed max-h-[70vh] and overflow-y-auto for mobile
                 : 
-                  `w-[400px] h-[72vh] right-[50px] overflow-hidden ${aboutExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`
+                  `w-[400px] h-[80vh] right-[50px] overflow-hidden ${aboutExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}` // Changed h-[72vh] to h-[80vh]
               }`}
               style={{ 
                 border: '1px solid rgba(255, 255, 255, 0.8)',
@@ -1831,7 +1819,7 @@ export default function WorkspaceBrochure() {
                 <div className="mb-4 flex items-center">
                   <div className="h-8 w-1 bg-[#0f766e] rounded-full mr-3"></div>
                   <h3 className="text-2xl font-light text-[#1a365d]">
-                    About <span className="font-bold">The Old School</span>
+                    About <span className="font-bold">The Village</span>
                   </h3>
                 </div>
                 
@@ -2815,7 +2803,7 @@ export default function WorkspaceBrochure() {
         </div>
 
         {/* Amenities */}
-        <div className="mb-16">
+        <div className="mb-16"> {/* Removed hidden md:block */}
           <h2 className="text-xl sm:text-2xl font-bold mb-8 text-foreground">Amenities & Services</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8">
             <div className="flex items-center gap-3">
@@ -3038,7 +3026,9 @@ export default function WorkspaceBrochure() {
       rel="noopener noreferrer"
       className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
     >
-      <MapPin className="h-3 w-3" />
+      <span className="hidden sm:inline-flex">
+        <MapPin className="h-3 w-3" />
+      </span>
       View on Google Maps
     </a>
   </div>
@@ -3065,7 +3055,7 @@ export default function WorkspaceBrochure() {
                 </li>
               </ul>
             </div>
-            <div>
+            <div className="hidden md:block"> {/* Added hidden md:block here */}
               <h3 className="font-bold text-lg mb-3 text-foreground">Local Amenities</h3>
               <p className="text-[#1a365d] mb-4">
                 Our venue is surrounded by a variety of amenities to enhance your event experience.
@@ -3212,10 +3202,10 @@ export default function WorkspaceBrochure() {
           
           <div className="text-center">
             <Button 
-              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-12 py-5 text-xl rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
+              className="bg-[#0f766e] hover:bg-[#0f766e]/90 text-white px-16 py-6 text-2xl rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300" // Increased padding and text size
               onClick={handleBookTour}
             >
-              Book a Tour <Calendar className="ml-2 h-5 w-5" />
+              Book a Tour {/* Removed Calendar icon */}
             </Button>
           </div>
         </div>
@@ -3417,7 +3407,7 @@ export default function WorkspaceBrochure() {
           setTourSubmitSuccess(false); // Reset success state
         }
       }}>
-        <DialogContent className="sm:max-w-lg p-0">
+        <DialogContent className="sm:max-w-lg p-0 tour-booking-dialog-content">
           <div className="p-6 space-y-6">
             <div className="flex flex-col items-center text-center">
               <div className="p-3 bg-primary/10 rounded-full mb-3">

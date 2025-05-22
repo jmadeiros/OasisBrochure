@@ -120,3 +120,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for Tour Booking Dialog on mobile */
+@media (max-width: 639px) { /* Max width for screens smaller than sm (640px) */
+  .tour-booking-dialog-content {
+    max-height: 85vh; /* Adjust as needed, 85% of viewport height */
+    overflow-y: auto;
+  }
+  /* Optional: reduce padding on mobile inside the dialog for more content space */
+  .tour-booking-dialog-content > div { /* Targets the inner div with p-6 */
+    padding: 1rem; /* Default Tailwind p-6 is 1.5rem (24px), p-4 is 1rem (16px) */
+  }
+}
